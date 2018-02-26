@@ -1,2 +1,3 @@
 # gibson-analytics
-Sample repository
+
+Place holder for sample web ui
