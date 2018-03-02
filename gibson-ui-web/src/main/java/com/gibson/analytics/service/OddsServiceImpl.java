@@ -41,7 +41,7 @@ public class OddsServiceImpl implements OddsService {
 		Odds odds = availableOdds.get(key);
 		if(odds != null) {
 			for (GameStatistic gameStatistic : game.getGameStatistics()) {
-				if(gameStatistic.getName().equals("Score")) {
+				if(gameStatistic.getName().equals("Total")) {
 					gameStatistic.setVegas(odds.getTotal());
 				} else if (gameStatistic.getName().equals("Spread")) {
 					gameStatistic.setVegas(odds.getSpread());

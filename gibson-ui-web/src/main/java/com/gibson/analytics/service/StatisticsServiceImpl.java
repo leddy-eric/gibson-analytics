@@ -198,7 +198,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 		BigDecimal overUnderValueMoving = homeScoreMoving.add(awayScoreMoving).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
 
-		return new GameStatistic("Score Moving Average", overUnderValueMoving.toString());
+		return new GameStatistic("Total Moving", overUnderValueMoving.toString());
 	}
 
 	/**
@@ -213,7 +213,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 		BigDecimal overUnderValue = homeScore.add(awayScore).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
 
-		return new GameStatistic("Score", overUnderValue.toString());
+		return new GameStatistic("Total", overUnderValue.toString());
 	}
 	
 	
