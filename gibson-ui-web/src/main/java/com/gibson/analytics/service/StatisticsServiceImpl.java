@@ -59,8 +59,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 			// Add Statistics
 			statistics.add(score);
 			statistics.add(scoreMoving);
-			statistics.add(spread);
-			statistics.add(spreadMoving);
+			//statistics.add(spread);
+			//statistics.add(spreadMoving);
 			statistics.add(valueSpread);
 			statistics.add(valueSpreadMoving);
 		} else {
@@ -93,9 +93,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 		Entry<BigDecimal, PointValue> ceiling = valueSpreadMap.ceilingEntry(adjustedValueScore);
 		
 		if(floor == null) {
-			return new GameStatistic("Value Spread Moving", ceiling.getValue().getSpread().toString());
+			return new GameStatistic("Spread Moving", ceiling.getValue().getSpread().toString());
 		} else if(ceiling == null) {
-			return new GameStatistic("Value Spread Moving", floor.getValue().getSpread().toString());
+			return new GameStatistic("Spread Moving", floor.getValue().getSpread().toString());
 		} else {
 			PointValue floorValue = floor.getValue();
 			PointValue ceilingValue = ceiling.getValue();
@@ -108,10 +108,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 			
 			
 			if(differenceToFloor.compareTo(differenceToCeiling) < 0) {
-				return new GameStatistic("Value Spread Moving", floor.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());
+				return new GameStatistic("Spread Moving", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
 			} 
 			
-			return new GameStatistic("Value Spread Moving", ceiling.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());			
+			return new GameStatistic("Spread Moving", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());			
 
 		}
 
@@ -133,9 +133,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 		Entry<BigDecimal, PointValue> ceiling = valueSpreadMap.ceilingEntry(adjustedValueScore);
 		
 		if(floor == null) {
-			return new GameStatistic("Value Spread", ceiling.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());
+			return new GameStatistic("Spread", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
 		} else if(ceiling == null) {
-			return new GameStatistic("Value Spread", floor.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());
+			return new GameStatistic("Spread", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
 		} else {
 			PointValue floorValue = floor.getValue();
 			PointValue ceilingValue = ceiling.getValue();
@@ -148,10 +148,10 @@ public class StatisticsServiceImpl implements StatisticsService {
 			
 			
 			if(differenceToFloor.compareTo(differenceToCeiling) < 0) {
-				return new GameStatistic("Value Spread", floor.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());
+				return new GameStatistic("Spread", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
 			} 
 			
-			return new GameStatistic("Value Spread", ceiling.getValue().getSpread().setScale(2, RoundingMode.HALF_DOWN).toString());			
+			return new GameStatistic("Spread", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());			
 		}
 	}
 
@@ -165,7 +165,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 	private GameStatistic createSpreadMoving(NbaTeam awayTeam, NbaTeam homeTeam) {
 		BigDecimal spreadMoving = new BigDecimal(awayTeam.getSpreadScoreMovingAverage())
 				.subtract(new BigDecimal(homeTeam.getSpreadScoreMovingAverage()))
-				.subtract(new BigDecimal(3.5)).setScale(2, RoundingMode.HALF_DOWN);
+				.subtract(new BigDecimal(3.5)).setScale(1, RoundingMode.HALF_DOWN);
 
 		return new GameStatistic("Spread Moving Average", spreadMoving.toString());
 	}
@@ -180,7 +180,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 	private GameStatistic createSpread(NbaTeam awayTeam, NbaTeam homeTeam) {
 		BigDecimal spread = new BigDecimal(awayTeam.getSpreadScore())
 				.subtract(new BigDecimal(homeTeam.getSpreadScore()))
-				.subtract(new BigDecimal(3.5)).setScale(2, RoundingMode.HALF_DOWN);
+				.subtract(new BigDecimal(3.5)).setScale(1, RoundingMode.HALF_DOWN);
 
 
 		return new GameStatistic("Spread", spread.toString());
@@ -196,7 +196,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 		BigDecimal homeScoreMoving = new BigDecimal(homeTeam.getScoreMovingAverage());
 		BigDecimal awayScoreMoving = new BigDecimal(awayTeam.getScoreMovingAverage());
 
-		BigDecimal overUnderValueMoving = homeScoreMoving.add(awayScoreMoving).add(new BigDecimal(212)).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal overUnderValueMoving = homeScoreMoving.add(awayScoreMoving).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
 
 		return new GameStatistic("Score Moving Average", overUnderValueMoving.toString());
 	}
@@ -211,7 +211,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 		BigDecimal homeScore = new BigDecimal(homeTeam.getScore());
 		BigDecimal awayScore = new BigDecimal(awayTeam.getScore());
 
-		BigDecimal overUnderValue = homeScore.add(awayScore).add(new BigDecimal(212)).setScale(2, RoundingMode.HALF_DOWN);
+		BigDecimal overUnderValue = homeScore.add(awayScore).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
 
 		return new GameStatistic("Score", overUnderValue.toString());
 	}
