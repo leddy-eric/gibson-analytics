@@ -1,0 +1,8 @@
+<div class="container">
+    <h3>{{title}}</h3>
+    <div>
+       <div class="row" *ngFor="let team of teams">
+       		<a [routerLink]="['/team', team.name]"> {{team.name}} </a>
+       </div>
+    </div>
+</div>

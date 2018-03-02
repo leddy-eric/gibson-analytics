@@ -1,0 +1,14 @@
+# build directories
+target/
+node/
+node_modules/
+
+# exclude editor properties
+.editorconfig
+.classpath
+.project
+.settings/
+
+
+# e2e
+/e2e/*

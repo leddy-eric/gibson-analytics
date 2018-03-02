@@ -1,0 +1,59 @@
+<div class="container-fluid">
+	<form class="form-inline">
+		<div class="form-group">
+			<div class="input-group">
+				<input class="form-control" placeholder="yyyy-mm-dd" name="dp"
+					(ngModelChange)="onSelect($event)" [ngModel]="model" ngbDatepicker
+					[showWeekdays]="false" #d="ngbDatepicker" [disabled]="!show">
+				<button class="input-group-addon" (click)="d.toggle()" type="button">
+					<i class="fa fa-calendar" aria-hidden="true"></i>
+				</button>
+			</div>
+		</div>
+	</form>
+	<hr>
+	<div *ngIf="show else elseBlock">
+		<ngb-tabset> <ngb-tab
+			*ngFor="let scoreboard of fullScoreboard"> <ng-template
+			ngbTabTitle> {{ scoreboard.league }} </ng-template> <ng-template
+			ngbTabContent>
+		<span></span>
+		<hr>
+		<div *ngIf="scoreboard.games.length == 0">
+			<h4>No games scheduled on this day!</h4>
+		</div>
+		<div class="card-deck">
+			<div *ngFor="let game of scoreboard.games" class="col-md-4">
+				<div class="card bg-secondary">
+					<div class="card-header mb-0 text-white">
+						<h6>{{game.away.code}} @ {{game.home.code}} - {{game.time}}</h6>
+					</div>
+					<div class="card-block bg-light">
+						<ul class="list-group">
+							<li *ngFor="let gameStatistic of game.gameStatistics"
+								class="list-group-item list-group-item d-flex justify-content-between align-items-center">{{gameStatistic.name}}
+						        <span *ngIf="gameStatistic.vegas" class="badge badge-pill">( Vegas: {{gameStatistic.vegas}} )</span> 
+								<span class="badge badge-pill">{{gameStatistic.value}}</span>  
+							</li>
+						</ul>
+					</div>
+					<div class="card-footer">
+						<small class="text-white">{{game.away.name}} -
+							({{game.away.record}}) /</small> <small class="text-white">{{game.home.name}}
+							- ({{game.home.record}})</small>
+					</div>
+				</div>
+				<hr>
+			</div>
+		</div>
+		</ng-template>
+		</ngb-tab> 
+		</ngb-tabset>
+	</div>
+	<ng-template #elseBlock>
+	<p>
+		<ngb-progressbar type="info" [value]="100" [striped]="true"
+			height="25px">Loading Game Data...</ngb-progressbar>
+	</p>
+	</ng-template>
+</div>

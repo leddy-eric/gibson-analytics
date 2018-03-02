@@ -1,0 +1,19 @@
+<div class="container">
+    <h3>{{title}}</h3>
+    <div>
+    	<table class="table table-bordered">
+    		<thead>
+    			<th>#</th>
+    			<th>Player Name</th>
+    			<th>Team</th>
+    		</thead>
+    		<tbody>
+       			<tr *ngFor="let detail of teamDetail">
+       				<td>{{detail.id}}</td>
+       				<td>{{detail.name}}</td>
+       				<td>{{detail.team}}</td>
+       			</tr>    			
+    		</tbody>
+    	</table>
+    </div>
+</div>
