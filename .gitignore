@@ -11,5 +11,8 @@ buildNumber.properties
 .project
 .settings/
 
+# Ignore Mac DS_Store files
+.DS_Store
+
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
