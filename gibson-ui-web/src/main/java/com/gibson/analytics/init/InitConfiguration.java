@@ -165,7 +165,7 @@ public class InitConfiguration {
                 .<Map<String, String>, Player> chunk(100)
                 .reader(playerReader())
                 .processor(new PlayerRowProcessor())
-                .writer(player -> playerRepository.save(player))
+                .writer(player -> playerRepository.saveAll(player))
                 .build();
     }
     
@@ -175,7 +175,7 @@ public class InitConfiguration {
                 .<Map<String, String>, List<BattingStatistic>> chunk(100)
                 .reader(playerReader())
                 .processor(new BattingStatisticProcessor())
-                .writer(list -> list.forEach(stats -> battingStatisticsRepository.save(stats)))
+                .writer(list -> list.forEach(stats -> battingStatisticsRepository.saveAll(stats)))
                 .build();
     }
     
@@ -185,7 +185,7 @@ public class InitConfiguration {
                 .<Map<String, String>, NbaTeam> chunk(100)
                 .reader(nbaTeamReader())
                 .processor(new NbaTeamProcessor())
-                .writer(nbaTeam -> nbaTeamRepository.save(nbaTeam))
+                .writer(nbaTeam -> nbaTeamRepository.saveAll(nbaTeam))
                 .build();
     }
     

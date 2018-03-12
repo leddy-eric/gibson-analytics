@@ -47,7 +47,7 @@ public class BatterWriter implements ItemWriter<Batter> {
 		Team team = new Team();
 		
 		team.setName(name);
-		batters.forEach(b -> lineup.add(playerRepository.findOne(b.getPlayerId())));
+		batters.forEach(b -> lineup.add(playerRepository.findById(b.getPlayerId()).get()));
 		
 		team.setLineup(lineup);
 		teamRepository.save(team);

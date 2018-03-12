@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import javax.annotation.PostConstruct;
@@ -44,16 +45,19 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 		log.info("Adding statistics for "+game.getId());
 
-		NbaTeam awayTeam = repository.findOne(game.getAway().getName());
-		NbaTeam homeTeam = repository.findOne(game.getHome().getName());
+		Optional<NbaTeam> awayTeam = repository.findById(game.getAway().getName());
+		Optional<NbaTeam> homeTeam = repository.findById(game.getHome().getName());
 
-		if(awayTeam != null && homeTeam != null) {
-			GameStatistic score = createScore(awayTeam, homeTeam);
-			GameStatistic scoreMoving = createScoreMoving(awayTeam, homeTeam);
-			GameStatistic spread = createSpread(awayTeam, homeTeam);
-			GameStatistic spreadMoving = createSpreadMoving(awayTeam, homeTeam);
-			GameStatistic valueSpread = createValueSpread(awayTeam, homeTeam);
-			GameStatistic valueSpreadMoving = createValueSpreadMoving(awayTeam, homeTeam);	
+		if(awayTeam.isPresent() && homeTeam.isPresent()) {
+			NbaTeam away = awayTeam.get();
+			NbaTeam home = homeTeam.get();
+			
+			GameStatistic score = createScore(away, home);
+			GameStatistic scoreMoving = createScoreMoving(away, home);
+			GameStatistic spread = createSpread(away, home);
+			GameStatistic spreadMoving = createSpreadMoving(away, home);
+			GameStatistic valueSpread = createValueSpread(away, home);
+			GameStatistic valueSpreadMoving = createValueSpreadMoving(away, home);	
 
 
 			// Add Statistics
