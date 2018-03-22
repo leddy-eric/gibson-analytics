@@ -1,7 +1,7 @@
 package com.gibson.analytics.client.baseball;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,18 +35,18 @@ public class BaseballAPIImpl implements BaseballAPI {
 
 	@Override
 	public Scoreboard getScoreboard() {		
-		return this.getScoreboard(LocalDateTime.now());
+		return this.getScoreboard(LocalDate.now());
 	}
 	
 	@Override
-	public Scoreboard getScoreboard(LocalDateTime datetime) {
-		log.debug("Getting scoreboard:"+ datetime.format(DateTimeFormatter.ISO_LOCAL_DATE));
+	public Scoreboard getScoreboard(LocalDate date) {
+		log.debug("Getting scoreboard:"+ date.format(DateTimeFormatter.ISO_LOCAL_DATE));
 		
         Scoreboard scoreboard = 
-        		restTemplate.execute(buildScoreboardUri(datetime), HttpMethod.GET, null, 
+        		restTemplate.execute(buildScoreboardUri(date), HttpMethod.GET, null, 
         				new BaseballScoreboardResponseExtractor());
 		
-		scoreboard.setDate(datetime.toLocalDate());
+		scoreboard.setDate(date);
 		
 		return scoreboard;
 	}
@@ -110,7 +110,7 @@ public class BaseballAPIImpl implements BaseballAPI {
 	 * @param dateTime
 	 * @return
 	 */
-	private URI buildScoreboardUri(LocalDateTime dateTime) {
+	private URI buildScoreboardUri(LocalDate dateTime) {
 		return buildScoreboardUri(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth());
 	}
 
@@ -127,6 +127,11 @@ public class BaseballAPIImpl implements BaseballAPI {
 								   .path(RESOURCE_SCOREBOARD)
 								   .buildAndExpand(year, String.format("%02d", month) , String.format("%02d", day))
 								   .toUri();
+	}
+
+	@Override
+	public String getLeagueIdentifier() {
+		return "MLB";
 	}
 
 }

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Optional;
 import java.util.TreeMap;
 
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gibson.analytics.core.GameStatisticsProvider;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
 import com.gibson.analytics.data.NbaTeam;
@@ -31,195 +33,23 @@ public class StatisticsServiceImpl implements StatisticsService {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	
 	private TreeMap<BigDecimal, PointValue> valueSpreadMap = new TreeMap<>();
-
+	
 	@Autowired
-	NbaTeamRepository repository;
+	private List<GameStatisticsProvider> providers;
+
 
 	/* (non-Javadoc)
 	 * @see com.gibson.analytics.service.StatisticsService#createStatistics(com.gibson.analytics.data.Game)
 	 */
 	@Override
 	public List<GameStatistic> createStatistics(Game game) {
-		List<GameStatistic> statistics = new ArrayList<>();
-		String league = game.getLeague();
-
-		log.info("Adding statistics for "+game.getId());
-
-		Optional<NbaTeam> awayTeam = repository.findById(game.getAway().getName());
-		Optional<NbaTeam> homeTeam = repository.findById(game.getHome().getName());
-
-		if(awayTeam.isPresent() && homeTeam.isPresent()) {
-			NbaTeam away = awayTeam.get();
-			NbaTeam home = homeTeam.get();
-			
-			GameStatistic score = createScore(away, home);
-			GameStatistic scoreMoving = createScoreMoving(away, home);
-			GameStatistic spread = createSpread(away, home);
-			GameStatistic spreadMoving = createSpreadMoving(away, home);
-			GameStatistic valueSpread = createValueSpread(away, home);
-			GameStatistic valueSpreadMoving = createValueSpreadMoving(away, home);	
-
-
-			// Add Statistics
-			statistics.add(score);
-			statistics.add(scoreMoving);
-			//statistics.add(spread);
-			//statistics.add(spreadMoving);
-			statistics.add(valueSpread);
-			statistics.add(valueSpreadMoving);
-		} else {
-			log.error("Could not resolve team " +game.getAway().getName() +" or "+ game.getHome().getName() + " available names are: " );
-			//repository.findAll().forEach(t -> log.debug(t.getName()));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-			statistics.add(new GameStatistic("N/A", "N/A"));
-		}
+		List<GameStatistic> statistics =
+				providers.stream().filter(p -> p.providesFor(game.getLeague()))
+				.map(p -> p.createStatistics(game))
+				.collect(Collectors.toList());
 
 		return statistics;
-	}
-
-	/**
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createValueSpreadMoving(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal adjustedValueScore = 
-				new BigDecimal(awayTeam.getValueScoreMovingAverage()).subtract(new BigDecimal(homeTeam.getValueScoreMovingAverage()));
-		
-		log.info("Adjusted Value Score: "+ adjustedValueScore);
-
-		Entry<BigDecimal, PointValue> floor = valueSpreadMap.floorEntry(adjustedValueScore);
-		Entry<BigDecimal, PointValue> ceiling = valueSpreadMap.ceilingEntry(adjustedValueScore);
-		
-		if(floor == null) {
-			return new GameStatistic("Spread Moving", ceiling.getValue().getSpread().toString());
-		} else if(ceiling == null) {
-			return new GameStatistic("Spread Moving", floor.getValue().getSpread().toString());
-		} else {
-			PointValue floorValue = floor.getValue();
-			PointValue ceilingValue = ceiling.getValue();
-			
-			log.info("Floor: "+ floorValue.getValue());
-			log.info("Ceiling :"+ ceilingValue.getValue());	
-			
-			BigDecimal differenceToFloor = adjustedValueScore.subtract(floorValue.getValue());
-			BigDecimal differenceToCeiling = ceilingValue.getValue().subtract(adjustedValueScore);
-			
-			
-			if(differenceToFloor.compareTo(differenceToCeiling) < 0) {
-				return new GameStatistic("Spread Moving", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
-			} 
-			
-			return new GameStatistic("Spread Moving", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());			
-
-		}
-
-	}
-
-	/**
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createValueSpread(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal adjustedValueScore = 
-				new BigDecimal(awayTeam.getValueScore()).subtract(new BigDecimal(homeTeam.getValueScore()));
-		
-		log.info("Adjusted Value Score: "+ adjustedValueScore);
-
-		Entry<BigDecimal, PointValue> floor = valueSpreadMap.floorEntry(adjustedValueScore);
-		Entry<BigDecimal, PointValue> ceiling = valueSpreadMap.ceilingEntry(adjustedValueScore);
-		
-		if(floor == null) {
-			return new GameStatistic("Spread", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
-		} else if(ceiling == null) {
-			return new GameStatistic("Spread", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
-		} else {
-			PointValue floorValue = floor.getValue();
-			PointValue ceilingValue = ceiling.getValue();
-			
-			log.info("Floor: "+ floorValue.getValue());
-			log.info("Ceiling :"+ ceilingValue.getValue());	
-			
-			BigDecimal differenceToFloor = adjustedValueScore.subtract(floorValue.getValue());
-			BigDecimal differenceToCeiling = ceilingValue.getValue().subtract(adjustedValueScore);
-			
-			
-			if(differenceToFloor.compareTo(differenceToCeiling) < 0) {
-				return new GameStatistic("Spread", floor.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());
-			} 
-			
-			return new GameStatistic("Spread", ceiling.getValue().getSpread().setScale(1, RoundingMode.HALF_DOWN).toString());			
-		}
-	}
-
-	/**
-	 * Away team spread minus home team spread minus 3.5
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createSpreadMoving(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal spreadMoving = new BigDecimal(awayTeam.getSpreadScoreMovingAverage())
-				.subtract(new BigDecimal(homeTeam.getSpreadScoreMovingAverage()))
-				.subtract(new BigDecimal(3.5)).setScale(1, RoundingMode.HALF_DOWN);
-
-		return new GameStatistic("Spread Moving Average", spreadMoving.toString());
-	}
-
-	/**
-	 * Away team spread minus home team spread minus 3.5
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createSpread(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal spread = new BigDecimal(awayTeam.getSpreadScore())
-				.subtract(new BigDecimal(homeTeam.getSpreadScore()))
-				.subtract(new BigDecimal(3.5)).setScale(1, RoundingMode.HALF_DOWN);
-
-
-		return new GameStatistic("Spread", spread.toString());
-	}
-
-	/**
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createScoreMoving(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal homeScoreMoving = new BigDecimal(homeTeam.getScoreMovingAverage());
-		BigDecimal awayScoreMoving = new BigDecimal(awayTeam.getScoreMovingAverage());
-
-		BigDecimal overUnderValueMoving = homeScoreMoving.add(awayScoreMoving).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
-
-		return new GameStatistic("Total Moving", overUnderValueMoving.toString());
-	}
-
-	/**
-	 * 
-	 * @param awayTeam
-	 * @param homeTeam
-	 * @return
-	 */
-	private GameStatistic createScore(NbaTeam awayTeam, NbaTeam homeTeam) {
-		BigDecimal homeScore = new BigDecimal(homeTeam.getScore());
-		BigDecimal awayScore = new BigDecimal(awayTeam.getScore());
-
-		BigDecimal overUnderValue = homeScore.add(awayScore).add(new BigDecimal(210)).setScale(1, RoundingMode.HALF_DOWN);
-
-		return new GameStatistic("Total", overUnderValue.toString());
-	}
-	
+	}	
 	
 	@PostConstruct
 	public void init() {
