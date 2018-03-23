@@ -14,6 +14,7 @@ import org.springframework.validation.BindException;
 import org.springframework.validation.DataBinder;
 import org.springframework.web.client.ResponseExtractor;
 
+import com.gibson.analytics.core.SupportedLeagues;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Scoreboard;
@@ -63,6 +64,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		
 		result.setHome(extractGameTeam(HOME, values));
 		result.setAway(extractGameTeam(AWAY, values));
+		result.setLeague(SupportedLeagues.MLB.name());
 		
 		
 		if(log.isDebugEnabled()) {

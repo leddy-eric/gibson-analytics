@@ -44,9 +44,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 	@Override
 	public List<GameStatistic> createStatistics(Game game) {
 		List<GameStatistic> statistics =
-				providers.stream().filter(p -> p.providesFor(game.getLeague()))
-				.map(p -> p.createStatistics(game))
-				.collect(Collectors.toList());
+				providers
+					.stream()
+					.filter(p -> p.providesFor(game.getLeague()))
+					.map(p -> p.createStatistics(game))
+					.collect(Collectors.toList());
 
 		return statistics;
 	}	

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 
 import org.springframework.stereotype.Component;
 
+import com.gibson.analytics.core.SupportedLeagues;
 import com.gibson.analytics.data.GameStatistic;
 import com.gibson.analytics.data.NbaTeam;
 
@@ -19,5 +20,6 @@ public class NbaSpreadMovingStatsProvider extends AbstractNbaGameStatsProvider {
 
 		return new GameStatistic("Spread Moving Average", spreadMoving.toString());
 	}
+	
 
 }
