@@ -19,15 +19,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
 import com.gibson.analytics.data.Batter;
-import com.gibson.analytics.data.BattingStatistic;
+import com.gibson.analytics.data.PlayerStatistic;
 import com.gibson.analytics.data.NbaTeam;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.init.processor.BatterProcessor;
-import com.gibson.analytics.init.processor.BattingStatisticProcessor;
+import com.gibson.analytics.init.processor.PlayerStatisticProcessor;
 import com.gibson.analytics.init.processor.NbaTeamProcessor;
 import com.gibson.analytics.init.processor.PlayerRowProcessor;
 import com.gibson.analytics.init.writer.BatterWriter;
-import com.gibson.analytics.repository.BattingStatisticRepository;
+import com.gibson.analytics.repository.PlayerStatisticRepository;
 import com.gibson.analytics.repository.NbaTeamRepository;
 import com.gibson.analytics.repository.PlayerRepository;
 import com.gibson.analytics.repository.TeamRepository;
@@ -49,7 +49,7 @@ public class InitConfiguration {
     public NbaTeamRepository nbaTeamRepository;
     
     @Autowired
-	public BattingStatisticRepository battingStatisticsRepository;
+	public PlayerStatisticRepository playerStatisticsRepository;
     
     @Autowired
     public TeamRepository teamRepository;
@@ -172,10 +172,10 @@ public class InitConfiguration {
     @Bean
     public Step buildBattingStatistics() {    	
         return stepBuilderFactory.get("buildBattingStatistics")
-                .<Map<String, String>, List<BattingStatistic>> chunk(100)
+                .<Map<String, String>, List<PlayerStatistic>> chunk(100)
                 .reader(playerReader())
-                .processor(new BattingStatisticProcessor())
-                .writer(list -> list.forEach(stats -> battingStatisticsRepository.saveAll(stats)))
+                .processor(new PlayerStatisticProcessor())
+                .writer(list -> list.forEach(stats -> playerStatisticsRepository.saveAll(stats)))
                 .build();
     }
     

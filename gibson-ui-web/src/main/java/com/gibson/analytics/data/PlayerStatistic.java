@@ -11,16 +11,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 /**
- * The Class PitchingStatistics.
+ * The Class BattingStatistics.
  */
 @Entity
-public class PitchingStatistic implements Serializable {
+public class PlayerStatistic implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue
 	private Long id;
+	
+	@Column(nullable = false)
+	private Long playerId;
 
 	@Column(nullable = false)
 	private String name;
@@ -80,5 +83,24 @@ public class PitchingStatistic implements Serializable {
 	 */
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	
+	/**
+	 * Gets the player id.
+	 *
+	 * @return the player id
+	 */
+	public Long getPlayerId() {
+		return playerId;
+	}
+
+	/**
+	 * Sets the player id.
+	 *
+	 * @param playerId the new player id
+	 */
+	public void setPlayerId(Long playerId) {
+		this.playerId = playerId;
 	}
 }

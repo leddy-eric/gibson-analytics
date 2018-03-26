@@ -29,7 +29,7 @@ public class Player implements Serializable {
 	private String team;
 	
 	@OneToMany(mappedBy="playerId")
-	private List<BattingStatistic> battingStatistics;
+	private List<PlayerStatistic> playerStatistics;
 
 	/**
 	 * Gets the id.
@@ -87,16 +87,16 @@ public class Player implements Serializable {
 	}
 
 	/**
-	 * @return the battingStatistics
+	 * @return the statistics
 	 */
-	public List<BattingStatistic> getBattingStatistics() {
-		return battingStatistics;
+	public List<PlayerStatistic> getStatistics() {
+		return playerStatistics;
 	}
 
 	/**
-	 * @param battingStatistics the battingStatistics to set
+	 * @param playerStatistics the playerStatistics to set
 	 */
-	public void setBattingStatistics(List<BattingStatistic> battingStatistics) {
-		this.battingStatistics = battingStatistics;
+	public void setStatistics(List<PlayerStatistic> playerStatistics) {
+		this.playerStatistics = playerStatistics;
 	}
 }

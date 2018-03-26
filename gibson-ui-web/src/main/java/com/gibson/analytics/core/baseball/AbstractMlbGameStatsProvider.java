@@ -15,7 +15,6 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 
 	@Autowired
 	PlayerRepository playerRepository;
-	//TeamRepository teamRepository;
 	
 	@Override
 	public GameStatistic createStatistics(Game game) {
