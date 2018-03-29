@@ -45,7 +45,7 @@ public class BaseballAPITest {
 		
 		assertNotNull(roster);
 		assertTrue(!roster.isEmpty());
-		assertTrue(roster.get(0).getTeam().equals("Cubs"));
+		assertTrue(roster.get(0).getTeam().equals("Chicago Cubs"));
 	}
 	
 
