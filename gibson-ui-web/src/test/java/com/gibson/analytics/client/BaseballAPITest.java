@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -41,11 +42,11 @@ public class BaseballAPITest {
 	
 	@Test
 	public void testRoster() {
-		List<Player> roster = api.getRoster("112");
+		List<Player> roster = api.getRoster(MlbTeamLookup.CUBS);
 		
 		assertNotNull(roster);
 		assertTrue(!roster.isEmpty());
-		assertTrue(roster.get(0).getTeam().equals("Chicago Cubs"));
+		assertTrue(roster.get(0).getTeam().equals(MlbTeamLookup.CUBS.team()));
 	}
 	
 

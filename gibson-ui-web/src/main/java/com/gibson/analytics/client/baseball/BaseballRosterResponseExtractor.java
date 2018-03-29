@@ -9,6 +9,7 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseExtractor;
 
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
@@ -27,7 +28,9 @@ public class BaseballRosterResponseExtractor implements ResponseExtractor<List<P
 				Player p = new Player();
 				
 				p.setName(map.get("name_display_first_last").toString());
-				p.setTeam(map.get("team_name").toString());
+				String apiTeamName = map.get("team_name").toString();
+				p.setTeam(MlbTeamLookup.teamFrom(apiTeamName));
+				
 				results.add(p);
 			}
 		}

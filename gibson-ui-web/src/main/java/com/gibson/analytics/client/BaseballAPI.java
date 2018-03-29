@@ -5,6 +5,7 @@ import java.util.List;
 import com.gibson.analytics.core.ScoreboardProvider;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
 
 public interface BaseballAPI extends ScoreboardProvider {
 	
@@ -18,9 +19,9 @@ public interface BaseballAPI extends ScoreboardProvider {
 	/**
 	 * Uses the MLB api to get the active roster.
 	 * 
-	 * @param teamId
+	 * @param mlb team
 	 * @return
 	 */
-	public List<Player> getRoster(String teamId);
+	public List<Player> getRoster(MlbTeamLookup team);
 
 }

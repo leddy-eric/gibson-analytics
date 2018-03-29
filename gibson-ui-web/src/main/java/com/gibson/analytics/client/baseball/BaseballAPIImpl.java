@@ -21,6 +21,7 @@ import com.gibson.analytics.client.model.MatchupTeam;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.Scoreboard;
+import com.gibson.analytics.enums.MlbTeamLookup;
 
 @Component
 public class BaseballAPIImpl implements BaseballAPI {
@@ -98,8 +99,8 @@ public class BaseballAPIImpl implements BaseballAPI {
 	}
 
 	@Override
-	public List<Player> getRoster(String teamId) {
-		return restTemplate.execute(buildRosterUri(teamId), HttpMethod.GET, null, 
+	public List<Player> getRoster(MlbTeamLookup team) {
+		return restTemplate.execute(buildRosterUri(team.apiIdentifier()), HttpMethod.GET, null, 
 				new BaseballRosterResponseExtractor());
 	}
 

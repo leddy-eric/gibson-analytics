@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.gibson.analytics.client.BaseballAPI;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
 import com.google.common.base.Optional;
 
 @Service
@@ -21,11 +22,6 @@ public class MlbRosterService {
 
 	@Autowired
 	private BaseballAPI api;
-	
-	// TODO - we really should get this by the MLB api, but I don't know how yet
-	List<String> teamIds = Arrays.asList( "112", "134", "138", "142", "117", "147", "111", "108", "158", "143", 
-										  "120",  "145", "137", "114", "115", "146", "116", "121", "110", "140", 
-										  "141", "139",  "133", "135", "144", "113", "118", "119", "136","109");
 
 	private List<Player> allPlayers = new ArrayList<>();
 	private Map<String, List<Player>> cachedRosters = new HashMap<>();
@@ -68,12 +64,11 @@ public class MlbRosterService {
 		// Clean up
 		allPlayers.clear();
 		cachedRosters.clear();
-		
-		for (String teamId : teamIds) {
-			allPlayers.addAll(api.getRoster(teamId));
+
+		for (MlbTeamLookup team : MlbTeamLookup.values()) {
+			allPlayers.addAll(api.getRoster(team));
 		}
 		
 		cachedRosters = allPlayers.stream().collect(Collectors.groupingBy(Player::getTeam));
-		cachedRosters.keySet().forEach(System.out::println);
 	}
 }
