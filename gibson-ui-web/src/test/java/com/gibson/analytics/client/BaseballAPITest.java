@@ -1,6 +1,9 @@
 package com.gibson.analytics.client;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.gibson.analytics.data.Lineup;
+import com.gibson.analytics.data.Player;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -34,5 +38,15 @@ public class BaseballAPITest {
 		
 		assertNotNull(lineup);
 	}
+	
+	@Test
+	public void testRoster() {
+		List<Player> roster = api.getRoster("112");
+		
+		assertNotNull(roster);
+		assertTrue(!roster.isEmpty());
+		assertTrue(roster.get(0).getTeam().equals("Cubs"));
+	}
+	
 
 }

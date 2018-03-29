@@ -28,6 +28,9 @@ public class Player implements Serializable {
 	@Column
 	private String team;
 	
+	@Column
+	private String position;
+	
 	@OneToMany(mappedBy="playerId")
 	private List<PlayerStatistic> playerStatistics;
 
@@ -98,5 +101,19 @@ public class Player implements Serializable {
 	 */
 	public void setStatistics(List<PlayerStatistic> playerStatistics) {
 		this.playerStatistics = playerStatistics;
+	}
+
+	/**
+	 * @return the position
+	 */
+	public String getPosition() {
+		return position;
+	}
+
+	/**
+	 * @param position the position to set
+	 */
+	public void setPosition(String position) {
+		this.position = position;
 	}
 }

@@ -19,6 +19,7 @@ import com.gibson.analytics.client.BaseballAPI;
 import com.gibson.analytics.client.model.Matchup;
 import com.gibson.analytics.client.model.MatchupTeam;
 import com.gibson.analytics.data.Lineup;
+import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.Scoreboard;
 
 @Component
@@ -29,15 +30,84 @@ public class BaseballAPIImpl implements BaseballAPI {
     private final String HOSTNAME = "http://gd2.mlb.com";
     private final String RESOURCE_SCOREBOARD = "components/game/mlb/year_{year}/month_{month}/day_{day}/miniscoreboard.json";
 	private final String RESOURCE_PLAYERS = "/players.xml";
+    private final String HOSTNAME_LOOKUP = "http://mlb.mlb.com";
+	private final String RESOURCE_ROSTER = "lookup/json/named.roster_40.bam";
 
     @Autowired
     private RestTemplate restTemplate;
+
+	/**
+	 * 
+	 * @param gameDataDirectory
+	 * @return
+	 */
+	private URI buildLineupUri(String gameDataDirectory) {
+		return UriComponentsBuilder.fromHttpUrl(HOSTNAME)
+				   .path(gameDataDirectory)
+				   .path(RESOURCE_PLAYERS)
+				   .build().toUri();
+	}
+	
+	private URI buildRosterUri(String teamId) {
+		URI uri = UriComponentsBuilder.fromHttpUrl(HOSTNAME_LOOKUP)
+				   .path(RESOURCE_ROSTER)
+				   .queryParam("team_id", teamId)
+				   .build().toUri();
+		log.debug("Roster URI: " +uri.toString());
+		return uri;
+	}
+	
+	/**
+	 * Create the resource URI for the scoreboard resource.
+	 * 
+	 * @param year
+	 * @param month
+	 * @param day
+	 * @return
+	 */
+	private URI buildScoreboardUri(int year, int month, int day) {
+		return UriComponentsBuilder.fromHttpUrl(HOSTNAME)
+								   .path(RESOURCE_SCOREBOARD)
+								   .buildAndExpand(year, String.format("%02d", month) , String.format("%02d", day))
+								   .toUri();
+	}
+
+	/**
+	 * Create the resource URI for the scoreboard resource.
+	 * 
+	 * @param dateTime
+	 * @return
+	 */
+	private URI buildScoreboardUri(LocalDate dateTime) {
+		return buildScoreboardUri(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth());
+	}
+
+	@Override
+	public String getLeagueIdentifier() {
+		return "MLB";
+	}
+
+	@Override
+	public Lineup getLineup(String gameDataDirectory) {
+		log.debug("Getting lineup:"+ gameDataDirectory);
+		
+		ResponseEntity<Matchup> entity = restTemplate.getForEntity(buildLineupUri(gameDataDirectory), 
+				Matchup.class);
+		
+		return mapToLineup(entity);
+	}
+
+	@Override
+	public List<Player> getRoster(String teamId) {
+		return restTemplate.execute(buildRosterUri(teamId), HttpMethod.GET, null, 
+				new BaseballRosterResponseExtractor());
+	}
 
 	@Override
 	public Scoreboard getScoreboard() {		
 		return this.getScoreboard(LocalDate.now());
 	}
-	
+
 	@Override
 	public Scoreboard getScoreboard(LocalDate date) {
 		log.debug("Getting scoreboard:"+ date.format(DateTimeFormatter.ISO_LOCAL_DATE));
@@ -49,32 +119,6 @@ public class BaseballAPIImpl implements BaseballAPI {
 		scoreboard.setDate(date);
 		
 		return scoreboard;
-	}
-	
-	@Override
-	public Lineup getLineup(String gameDataDirectory) {
-		log.debug("Getting lineup:"+ gameDataDirectory);
-		
-		ResponseEntity<Matchup> entity = restTemplate.getForEntity(buildLineupUri(gameDataDirectory), 
-				Matchup.class);
-		
-		return mapToLineup(entity);
-	}
-
-
-	private Lineup mapToLineup(ResponseEntity<Matchup> entity) {
-		Lineup lineup = new Lineup();
-		lineup.setStatus(entity.getStatusCode());
-		
-		if(entity.getStatusCode().is2xxSuccessful()){
-			log.error("Could not find an active lineup...." + entity.getStatusCode());
-			Matchup matchup = entity.getBody();
-			
-			List<MatchupTeam> teams = matchup.getTeams();
-			teams.forEach(team -> mapToLineup(lineup, team));	
-		}
-		
-		return lineup;
 	}
 
 	private void mapToLineup(Lineup lineup, MatchupTeam team) {
@@ -92,46 +136,19 @@ public class BaseballAPIImpl implements BaseballAPI {
 		}
 	}
 
-	/**
-	 * 
-	 * @param gameDataDirectory
-	 * @return
-	 */
-	private URI buildLineupUri(String gameDataDirectory) {
-		return UriComponentsBuilder.fromHttpUrl(HOSTNAME)
-				   .path(gameDataDirectory)
-				   .path(RESOURCE_PLAYERS)
-				   .build().toUri();
-	}
-
-	/**
-	 * Create the resource URI for the scoreboard resource.
-	 * 
-	 * @param dateTime
-	 * @return
-	 */
-	private URI buildScoreboardUri(LocalDate dateTime) {
-		return buildScoreboardUri(dateTime.getYear(), dateTime.getMonthValue(), dateTime.getDayOfMonth());
-	}
-
-	/**
-	 * Create the resource URI for the scoreboard resource.
-	 * 
-	 * @param year
-	 * @param month
-	 * @param day
-	 * @return
-	 */
-	private URI buildScoreboardUri(int year, int month, int day) {
-		return UriComponentsBuilder.fromHttpUrl(HOSTNAME)
-								   .path(RESOURCE_SCOREBOARD)
-								   .buildAndExpand(year, String.format("%02d", month) , String.format("%02d", day))
-								   .toUri();
-	}
-
-	@Override
-	public String getLeagueIdentifier() {
-		return "MLB";
+	private Lineup mapToLineup(ResponseEntity<Matchup> entity) {
+		Lineup lineup = new Lineup();
+		lineup.setStatus(entity.getStatusCode());
+		
+		if(entity.getStatusCode().is2xxSuccessful()){
+			log.error("Could not find an active lineup...." + entity.getStatusCode());
+			Matchup matchup = entity.getBody();
+			
+			List<MatchupTeam> teams = matchup.getTeams();
+			teams.forEach(team -> mapToLineup(lineup, team));	
+		}
+		
+		return lineup;
 	}
 
 }
