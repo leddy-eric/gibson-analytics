@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { HomeService, Scoreboard }	from './home.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTabChangeEvent} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-home',
@@ -13,6 +14,7 @@ export class HomeComponent implements OnInit {
   today: Date = new Date();
   model: NgbDateStruct = {year: this.today.getFullYear(), month: this.today.getMonth() + 1, day: this.today.getDate() || 1 };
   show: boolean = false;
+  selectedTab:string;
   fullScoreboard: Scoreboard[] = [];
 
   constructor(private homeService: HomeService) { }
@@ -40,5 +42,9 @@ export class HomeComponent implements OnInit {
           games => this.fullScoreboard = games,
           err => console.error(err),
           () => this.show = true);
+  }
+  
+  tabChange($event: NgbTabChangeEvent) {
+    this.selectedTab = $event.nextId;
   }
 }

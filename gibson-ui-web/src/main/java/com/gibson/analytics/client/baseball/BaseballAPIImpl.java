@@ -10,13 +10,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.gibson.analytics.client.BaseballAPI;
 import com.gibson.analytics.client.model.Matchup;
+import com.gibson.analytics.client.model.MatchupPlayer;
 import com.gibson.analytics.client.model.MatchupTeam;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
@@ -91,11 +94,22 @@ public class BaseballAPIImpl implements BaseballAPI {
 	@Override
 	public Lineup getLineup(String gameDataDirectory) {
 		log.debug("Getting lineup:"+ gameDataDirectory);
+		Lineup lineup = new Lineup();
 		
-		ResponseEntity<Matchup> entity = restTemplate.getForEntity(buildLineupUri(gameDataDirectory), 
-				Matchup.class);
-		
-		return mapToLineup(entity);
+		try {
+			ResponseEntity<Matchup> entity = restTemplate.getForEntity(buildLineupUri(gameDataDirectory), 
+					Matchup.class);
+			lineup = mapToLineup(entity);
+		} catch (HttpClientErrorException e)   {
+			// Return empty if not found
+			if (HttpStatus.NOT_FOUND.equals(e.getStatusCode())) {
+				lineup.setStatus(e.getStatusCode());
+		    } else {
+		        throw e;
+		    }
+		}
+
+	    return lineup;
 	}
 
 	@Override
@@ -123,11 +137,11 @@ public class BaseballAPIImpl implements BaseballAPI {
 	}
 
 	private void mapToLineup(Lineup lineup, MatchupTeam team) {
-		List<String> playersInLineup =	
+		List<Player> playersInLineup =	
 				team.getPlayers().stream()
 					.filter(p -> p.getBatting() != null)
 					.sorted((p1, p2) -> p1.getBatting().compareTo(p2.getBatting()))
-					.map(p -> p.getPosition()+" - " +p.getFirst()+" "+p.getLast())
+					.map(p -> mapToPlayer(p))
 					.collect(Collectors.toList());
 		
 		if(team.getType().equals("away")){
@@ -136,13 +150,19 @@ public class BaseballAPIImpl implements BaseballAPI {
 			lineup.setHome(playersInLineup);
 		}
 	}
+	
+	private Player mapToPlayer(MatchupPlayer p) {
+		Player player = new Player();
+		player.setName(p.getFirst() + " " +p.getLast());
+		player.setPosition(p.getPosition());
+		return player;
+	}
 
 	private Lineup mapToLineup(ResponseEntity<Matchup> entity) {
 		Lineup lineup = new Lineup();
 		lineup.setStatus(entity.getStatusCode());
 		
-		if(entity.getStatusCode().is2xxSuccessful()){
-			log.error("Could not find an active lineup...." + entity.getStatusCode());
+		if(entity.getStatusCode().is2xxSuccessful()) {
 			Matchup matchup = entity.getBody();
 			
 			List<MatchupTeam> teams = matchup.getTeams();

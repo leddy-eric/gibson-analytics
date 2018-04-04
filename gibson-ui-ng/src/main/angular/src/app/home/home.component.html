@@ -13,8 +13,8 @@
 	</form>
 	<hr>
 	<div *ngIf="show else elseBlock">
-		<ngb-tabset> <ngb-tab
-			*ngFor="let scoreboard of fullScoreboard"> <ng-template
+		<ngb-tabset [activeId]="selectedTab" (tabChange)="tabChange($event)">
+			<ngb-tab *ngFor="let scoreboard of fullScoreboard" id=" {{ scoreboard.league }}"> <ng-template
 			ngbTabTitle> {{ scoreboard.league }} </ng-template> <ng-template
 			ngbTabContent>
 		<span></span>

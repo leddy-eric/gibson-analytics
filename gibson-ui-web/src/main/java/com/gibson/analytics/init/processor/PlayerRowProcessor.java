@@ -1,13 +1,13 @@
 package com.gibson.analytics.init.processor;
 
 import java.util.Map;
+import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.ItemProcessor;
 
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.init.CsvPlayerConstants;
+import com.gibson.analytics.repository.PlayerRepository;
 
 /**
  * This processor is called with a single row and will build the Player entity to be written to the database.
@@ -15,18 +15,29 @@ import com.gibson.analytics.init.CsvPlayerConstants;
  *
  */
 public class PlayerRowProcessor implements ItemProcessor<Map<String, String>, Player>, CsvPlayerConstants {
-	final static Logger log = LoggerFactory.getLogger(PlayerRowProcessor.class);
+	private PlayerRepository repository;
+	
+	
+	public PlayerRowProcessor(PlayerRepository repository){
+		this.repository = repository;
+	}
 
 	@Override
 	public Player process(Map<String, String> row) throws Exception {
-		Player p = new Player();
+		Player player = null;
+
+		Optional<Player> playerOptional = repository.findByName(row.get(COLUMN_NAME));
 		
-		p.setId(Long.parseLong(row.get(COLUMN_PLAYERID)));
-		p.setName(row.get(COLUMN_NAME));
-		p.setTeam(row.get(COLUMN_TEAM));
-	
+		if(playerOptional.isPresent()) {
+			player = playerOptional.get();
+		} else {
+			player = new Player();
+			player.setName(row.get(COLUMN_NAME));
+			player.setTeam(row.get(COLUMN_TEAM));
+			player.setStatus("I");		
+		}
 		
-		return p;
+		return player;
 	}
 
 }

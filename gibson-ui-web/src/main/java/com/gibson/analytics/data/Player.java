@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
@@ -20,6 +21,7 @@ public class Player implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@GeneratedValue
 	private Long id;
 	
 	@Column(nullable = false)
@@ -30,6 +32,9 @@ public class Player implements Serializable {
 	
 	@Column
 	private String position;
+	
+	@Column
+	private String status;
 	
 	@OneToMany(mappedBy="playerId")
 	private List<PlayerStatistic> playerStatistics;
@@ -115,5 +120,19 @@ public class Player implements Serializable {
 	 */
 	public void setPosition(String position) {
 		this.position = position;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

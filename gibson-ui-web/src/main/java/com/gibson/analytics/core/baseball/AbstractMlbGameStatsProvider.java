@@ -8,6 +8,7 @@ import com.gibson.analytics.core.GameStatisticsProvider;
 import com.gibson.analytics.core.SupportedLeagues;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
+import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.repository.PlayerRepository;
 
@@ -16,12 +17,13 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	@Autowired
 	PlayerRepository playerRepository;
 	
+	@Autowired
+	MlbRosterService service;
+	
 	@Override
 	public GameStatistic createStatistics(Game game) {
-		String awayTeamName = game.getAway().getName();
-		String homeTeamName = game.getHome().getName();
-		
-		return createStatistics(game, playerRepository.findByTeam(homeTeamName),  playerRepository.findByTeam(awayTeamName));
+		Lineup lineup = service.findActiveLineup(game);
+		return createStatistics(game, lineup.getHome(),  lineup.getAway());
 	}
 
 

@@ -2,6 +2,8 @@ package com.gibson.analytics.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,15 @@ public class TeamController {
     	
 		return response;
 	}
+    
+    @RequestMapping(value = "/roster/{name}", method = RequestMethod.GET)
+    public List<String> getRosterInfo(@PathVariable String name) {
+    	 return playerRepository.findByTeam(name)
+    			 	.stream()
+    			 	.map(Player::getName)
+    			 	.sorted()
+    			 	.collect(Collectors.toList());
+    }
     
     @RequestMapping(value = "/{name}", method = RequestMethod.GET)
     public List<Player> getRoster(@PathVariable String name) {

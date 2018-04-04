@@ -36,7 +36,7 @@ public enum MlbTeamLookup {
 	ROYALS("Royals","Kansas City Royals", "118"),
 	TIGERS("Tigers","Detroit Tigers", "116"),
 	TWINS("Twins","Minnesota Twins", "142"),
-	WHITE_SOX("White Sox","Chicago White Sox", "111"),
+	WHITE_SOX("White Sox","Chicago White Sox", "145"),
 	YANKEES("Yankees","New York Yankees", "147");
 	
 	private String team;

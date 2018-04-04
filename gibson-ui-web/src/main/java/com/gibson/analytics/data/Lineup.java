@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 public class Lineup {
 	
 	private HttpStatus status;
-	private List<String> home = new ArrayList<>();
-	private List<String> away = new ArrayList<>();
+	private List<Player> home = new ArrayList<>();
+	private List<Player> away = new ArrayList<>();
 	
 	/**
 	 * @return the status
@@ -28,28 +28,28 @@ public class Lineup {
 	/**
 	 * @return the home
 	 */
-	public List<String> getHome() {
+	public List<Player> getHome() {
 		return home;
 	}
 
 	/**
 	 * @param home the home to set
 	 */
-	public void setHome(List<String> home) {
+	public void setHome(List<Player> home) {
 		this.home = home;
 	}
 
 	/**
 	 * @return the away
 	 */
-	public List<String> getAway() {
+	public List<Player> getAway() {
 		return away;
 	}
 
 	/**
 	 * @param away the away to set
 	 */
-	public void setAway(List<String> away) {
+	public void setAway(List<Player> away) {
 		this.away = away;
 	}
 }

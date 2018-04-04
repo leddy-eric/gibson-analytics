@@ -13,7 +13,7 @@ public class ExampleGameStatsProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, List<Player> homeRoster, List<Player> awayRoster) {
-		return new GameStatistic("someStat", "1");
+		return new GameStatistic("rosterSize", Integer.toString(homeRoster.size()));
 	}
 
 }

@@ -4,19 +4,29 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.batch.api.chunk.listener.ChunkListener;
+
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.listener.SkipListenerSupport;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
 import com.gibson.analytics.data.Batter;
 import com.gibson.analytics.data.PlayerStatistic;
@@ -54,7 +64,7 @@ public class InitConfiguration {
     @Autowired
     public TeamRepository teamRepository;
 
-    @Value("classpath:2016PlayersWPark.csv")
+    @Value("classpath:2016PitchersWPark.csv")
     private Resource defaultPitcherData;
     
     @Value("classpath:2016PlayersWPark.csv")
@@ -121,6 +131,18 @@ public class InitConfiguration {
     }
     
     @Bean
+    public FlatFileItemReader<Map<String, String>> pitcherReader() {
+    	FlatFileItemReader<Map<String, String>> pitcherReader = new FlatFileItemReader<>();
+    	
+    	pitcherReader.setResource(defaultPitcherData);
+    	// Skip header
+    	pitcherReader.setLinesToSkip(1);
+    	pitcherReader.setLineMapper(new CsvDataMapper(CsvPitcherConstants.HEADER));
+    	
+    	return pitcherReader;	
+    }
+    
+    @Bean
     public FlatFileItemReader<Map<String, String>> lineupReader() {
     	FlatFileItemReader<Map<String, String>> lineupReader = new FlatFileItemReader<>();
     	
@@ -154,27 +176,53 @@ public class InitConfiguration {
                 .listener(listener)
                 .start(buildPlayers())
                 .next(buildBattingStatistics())
-                .next(buildTeamLineups())
+                .next(buildPitchingStatistics())
                 .next(buildNbaTeamStatistics())
                 .build();
     }
 
-    @Bean
+	@Bean
     public Step buildPlayers() {
-        return stepBuilderFactory.get("buildPlayers")
+		return stepBuilderFactory.get("buildPlayers")
                 .<Map<String, String>, Player> chunk(100)
                 .reader(playerReader())
-                .processor(new PlayerRowProcessor())
+                .processor(new PlayerRowProcessor(playerRepository))
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(IncorrectResultSizeDataAccessException.class)
+                .listener(playerSkipListener())
                 .writer(player -> playerRepository.saveAll(player))
                 .build();
     }
+	
+	private SkipListener<Map<String, String>, Player> playerSkipListener(){
+		return new PlayerSkipListener();
+	}
     
     @Bean
     public Step buildBattingStatistics() {    	
         return stepBuilderFactory.get("buildBattingStatistics")
                 .<Map<String, String>, List<PlayerStatistic>> chunk(100)
                 .reader(playerReader())
-                .processor(new PlayerStatisticProcessor())
+                .processor(new PlayerStatisticProcessor(playerRepository))
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(IncorrectResultSizeDataAccessException.class)
+                .listener(new SkipListenerSupport<>())
+                .writer(list -> list.forEach(stats -> playerStatisticsRepository.saveAll(stats)))
+                .build();
+    }
+    
+    @Bean
+    public Step buildPitchingStatistics() {
+        return stepBuilderFactory.get("buildPitchingStatistics")
+                .<Map<String, String>, List<PlayerStatistic>> chunk(100)
+                .reader(pitcherReader())
+                .processor(new PlayerStatisticProcessor(playerRepository))
+                .faultTolerant()
+                .skipLimit(10)
+                .skip(IncorrectResultSizeDataAccessException.class)
+                .listener(new SkipListenerSupport<>())
                 .writer(list -> list.forEach(stats -> playerStatisticsRepository.saveAll(stats)))
                 .build();
     }
@@ -194,7 +242,9 @@ public class InitConfiguration {
     	return stepBuilderFactory.get("buildTeamLineups")
     			.<Map<String, String>, Batter> chunk(400)
     			.reader(lineupReader())
-    			.processor(new BatterProcessor())
+    			.processor(new BatterProcessor(playerRepository))
+                .faultTolerant()
+                .skip(IncorrectResultSizeDataAccessException.class)
     			.writer(new BatterWriter(playerRepository, teamRepository))
     			.build();
     }
