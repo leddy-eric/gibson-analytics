@@ -1,5 +1,8 @@
 package com.gibson.analytics.core;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
 
@@ -18,5 +21,4 @@ public interface GameStatisticsProvider {
 	 * @return
 	 */
 	public boolean providesFor(String league);
-
 }
