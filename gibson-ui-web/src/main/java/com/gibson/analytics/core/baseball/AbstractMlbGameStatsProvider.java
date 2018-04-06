@@ -52,10 +52,11 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 		for (Player player : roster) {
 			Map<String, BigDecimal> playerMap = new HashMap<>(); 
 			List<PlayerStatistic> statistics = player.getStatistics();
-
-			for (PlayerStatistic stat : statistics) {
-				BigDecimal value = extractValueAsDecimal(stat.getValue());
-				playerMap.put(stat.getName(), value);
+			if(statistics != null) {
+				for (PlayerStatistic stat : statistics) {
+					BigDecimal value = extractValueAsDecimal(stat.getValue());
+					playerMap.put(stat.getName(), value);
+				}	
 			}
 
 			statNameValueMap.put(index.getAndIncrement(), playerMap);

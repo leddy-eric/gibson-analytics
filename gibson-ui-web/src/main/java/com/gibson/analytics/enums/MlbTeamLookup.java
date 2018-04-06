@@ -76,6 +76,16 @@ public enum MlbTeamLookup {
 		
 		throw new UnsupportedOperationException("No MLB team name matches" +apiTeam);	
 	}
+	
+	public static MlbTeamLookup lookupFrom(String apiIdentifier) {
+		for (MlbTeamLookup value : values()) {
+			if(apiIdentifier.equals(value.apiIdentifier)) {
+				return value;
+			}
+		}
+		
+		throw new UnsupportedOperationException("No MLB team name matches" +apiIdentifier);	
+	}
 
 
 }

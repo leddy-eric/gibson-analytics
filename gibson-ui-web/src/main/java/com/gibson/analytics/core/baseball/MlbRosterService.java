@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import com.gibson.analytics.client.BaseballAPI;
 import com.gibson.analytics.data.Game;
-import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.enums.MlbTeamLookup;
@@ -28,7 +27,10 @@ public class MlbRosterService {
 	
 	@Autowired
 	private PlayerRepository repository;
-
+	
+	@Autowired
+	private MlbRandomLineupGenerator lineupGenerator;
+	
 	/**
 	 * 
 	 * 
@@ -117,8 +119,8 @@ public class MlbRosterService {
 	 */
 	private Lineup createActiveLineup(Game game) {
 		Lineup lineup = new Lineup();
-		List<Player> awayLineup = createActiveLineup(game.getAway());
-		List<Player> homeLineup = createActiveLineup(game.getHome());
+		List<Player> awayLineup = lineupGenerator.getRandomLineup(game.getAway());
+		List<Player> homeLineup = lineupGenerator.getRandomLineup(game.getHome());
 		
 		lineup.setAway(awayLineup);
 		lineup.setHome(homeLineup);
@@ -126,11 +128,6 @@ public class MlbRosterService {
 		lineup.setStatus(HttpStatus.NO_CONTENT);
 		
 		return lineup;
-	}
-
-
-	private List<Player> createActiveLineup(GameTeam team) {
-		return repository.findByTeamAndStatus(team.getName(), "A");
 	}
 
 

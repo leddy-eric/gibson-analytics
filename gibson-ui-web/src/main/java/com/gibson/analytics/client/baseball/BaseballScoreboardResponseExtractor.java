@@ -18,6 +18,7 @@ import com.gibson.analytics.core.SupportedLeagues;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Scoreboard;
+import com.gibson.analytics.enums.MlbTeamLookup;
 import com.google.common.base.Optional;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
@@ -81,15 +82,17 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 	private GameTeam extractGameTeam(String type, MutablePropertyValues values) {
 		GameTeam team = new GameTeam();
 		if(type == HOME) {
+			MlbTeamLookup apiTeam = MlbTeamLookup.lookupFrom(extractStringValue(values, "homeTeamId"));
 			team.setCity(extractStringValue(values, "homeTeamCity"));
 			team.setCode(extractStringValue(values, "homeNameAbbrev"));
-			team.setName(extractStringValue(values, "homeTeamName"));
+			team.setName(apiTeam.team());
 			team.setRecord(extractStringValue(values, "homeWin")+"-" +
 					extractStringValue(values, "homeLoss"));
 		} else {
+			MlbTeamLookup apiTeam = MlbTeamLookup.lookupFrom(extractStringValue(values, "awayTeamId"));
 			team.setCity(extractStringValue(values, "awayTeamCity"));
 			team.setCode(extractStringValue(values, "awayNameAbbrev"));
-			team.setName(extractStringValue(values, "awayTeamName"));
+			team.setName(apiTeam.team());
 			team.setRecord(extractStringValue(values, "awayWin")+"-" +
 					extractStringValue(values, "awayLoss"));
 		}
