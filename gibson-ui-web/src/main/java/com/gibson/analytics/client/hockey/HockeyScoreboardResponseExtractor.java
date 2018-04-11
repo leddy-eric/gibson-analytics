@@ -79,7 +79,7 @@ public class HockeyScoreboardResponseExtractor implements ResponseExtractor<Scor
 		record.append('-');
 		record.append(extractValue(gameData, "game.teams.away.leagueRecord.losses" ).get());
 		record.append('-');
-		record.append(extractValue(gameData, "game.teams.away.leagueRecord.ot" ).get());
+		record.append(extractValue(gameData, "game.teams.away.leagueRecord.ot" ).orElse("0"));
 		away.setRecord(record.toString());
 		
 		GameTeam home = new GameTeam();
@@ -91,7 +91,7 @@ public class HockeyScoreboardResponseExtractor implements ResponseExtractor<Scor
 		record.append('-');
 		record.append(extractValue(gameData, "game.teams.home.leagueRecord.losses" ).get());
 		record.append('-');
-		record.append(extractValue(gameData, "game.teams.home.leagueRecord.ot" ).get());
+		record.append(extractValue(gameData, "game.teams.home.leagueRecord.ot" ).orElse("0"));
 		home.setRecord(record.toString());
 		
 		game.setHome(home);
