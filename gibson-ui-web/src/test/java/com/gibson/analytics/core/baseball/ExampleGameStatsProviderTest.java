@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
@@ -22,8 +23,13 @@ import com.gibson.analytics.data.PlayerStatistic;
 
 import static org.mockito.BDDMockito.*;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -63,8 +69,18 @@ public class ExampleGameStatsProviderTest {
 	@Transactional
 	public void providerCalculatesGame() {
 		GameStatistic createStatistics = provider.createStatistics(game);
+		
 		assertNotNull(createStatistics);
 		assertEquals("The defaults should calculate to 0.44400","0.44400", createStatistics.getValue());
+	}
+	
+	@Test
+	public void roundingErrors() {
+		// TODO - Talk to Aaron about this
+		String obp = BigDecimal.valueOf(.338).multiply(BigDecimal.valueOf(4)).divide(BigDecimal.valueOf(38.7),RoundingMode.HALF_DOWN).toString();
+		String perciseObp = BigDecimal.valueOf(.338).multiply(BigDecimal.valueOf(4.0)).divide(BigDecimal.valueOf(38.7),RoundingMode.HALF_DOWN).toString();
+		
+		// assertEquals(obp, perciseObp);		
 	}
 	
 	/**
@@ -143,4 +159,42 @@ public class ExampleGameStatsProviderTest {
 		return playerStatistic;
 	}
 
+	/**
+	 * Temp...... 
+	 * 
+	 * @param roster
+	 * @return
+	 */
+	private Map<Player, Map<String, BigDecimal>> extractStatisticsByPlayer(List<Player> roster) {
+		LinkedHashMap<Player, Map<String, BigDecimal>> statNameValueMap = new LinkedHashMap<>();
+
+		for (Player player : roster) {
+			Map<String, BigDecimal> playerMap = new HashMap<>(); 
+			List<PlayerStatistic> statistics = player.getStatistics();
+			if(statistics != null) {
+				for (PlayerStatistic stat : statistics) {
+					BigDecimal value = extractValueAsDecimal(stat.getValue());
+					playerMap.put(stat.getName(), value);
+				}	
+			}
+
+			statNameValueMap.put(player, playerMap);
+		}
+
+		return statNameValueMap;
+	}
+	
+	private BigDecimal extractValueAsDecimal(String value) {
+		BigDecimal v = new BigDecimal(0);
+		
+		if(StringUtils.hasText(value)) {
+			try {
+				v = new BigDecimal(value);
+			} catch (Exception e) {
+				//System.out.println("Could not parse big decimal (" +value +") "+e.getMessage());
+			}			
+		}
+		
+		return v;
+	}
 }
