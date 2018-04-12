@@ -71,7 +71,7 @@ public class ExampleGameStatsProviderTest {
 		GameStatistic createStatistics = provider.createStatistics(game);
 		
 		assertNotNull(createStatistics);
-		assertEquals("The defaults should calculate to 0.44400","0.44400", createStatistics.getValue());
+		assertEquals("The defaults should calculate to 0.43900","0.43900", createStatistics.getValue());
 	}
 	
 	@Test
@@ -159,42 +159,4 @@ public class ExampleGameStatsProviderTest {
 		return playerStatistic;
 	}
 
-	/**
-	 * Temp...... 
-	 * 
-	 * @param roster
-	 * @return
-	 */
-	private Map<Player, Map<String, BigDecimal>> extractStatisticsByPlayer(List<Player> roster) {
-		LinkedHashMap<Player, Map<String, BigDecimal>> statNameValueMap = new LinkedHashMap<>();
-
-		for (Player player : roster) {
-			Map<String, BigDecimal> playerMap = new HashMap<>(); 
-			List<PlayerStatistic> statistics = player.getStatistics();
-			if(statistics != null) {
-				for (PlayerStatistic stat : statistics) {
-					BigDecimal value = extractValueAsDecimal(stat.getValue());
-					playerMap.put(stat.getName(), value);
-				}	
-			}
-
-			statNameValueMap.put(player, playerMap);
-		}
-
-		return statNameValueMap;
-	}
-	
-	private BigDecimal extractValueAsDecimal(String value) {
-		BigDecimal v = new BigDecimal(0);
-		
-		if(StringUtils.hasText(value)) {
-			try {
-				v = new BigDecimal(value);
-			} catch (Exception e) {
-				//System.out.println("Could not parse big decimal (" +value +") "+e.getMessage());
-			}			
-		}
-		
-		return v;
-	}
 }
