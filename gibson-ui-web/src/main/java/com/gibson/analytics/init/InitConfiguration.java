@@ -64,10 +64,10 @@ public class InitConfiguration {
     @Autowired
     public TeamRepository teamRepository;
 
-    @Value("classpath:2016PitchersWPark.csv")
+    @Value("classpath:PitchersForWebsite.csv")
     private Resource defaultPitcherData;
     
-    @Value("classpath:2016PlayersWPark.csv")
+    @Value("classpath:OffensivePlayerForWebsite.csv")
     private Resource defaultPlayerData;
     
     @Value("classpath:Lineups.csv")
@@ -124,7 +124,7 @@ public class InitConfiguration {
     	playerReader.setResource(defaultPlayerData);
     	// Skip header
     	playerReader.setLinesToSkip(1);
-    	playerReader.setLineMapper(new CsvDataMapper(CsvPlayerConstants.HEADER));
+    	playerReader.setLineMapper(new CsvDataMapper(CsvPlayerConstants.SUMMARY_HEADER));
     	
     	return playerReader;
     	
@@ -137,7 +137,7 @@ public class InitConfiguration {
     	pitcherReader.setResource(defaultPitcherData);
     	// Skip header
     	pitcherReader.setLinesToSkip(1);
-    	pitcherReader.setLineMapper(new CsvDataMapper(CsvPitcherConstants.HEADER));
+    	pitcherReader.setLineMapper(new CsvDataMapper(CsvPitcherConstants.SUMMARY_HEADER));
     	
     	return pitcherReader;	
     }
