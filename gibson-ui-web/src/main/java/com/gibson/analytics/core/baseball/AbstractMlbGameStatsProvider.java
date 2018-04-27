@@ -21,6 +21,9 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 
 	@Autowired
 	MlbRosterService service;
+	
+	@Autowired
+	MlbParkFactorService parkService;
 
 	@Override
 	public GameStatistic createStatistics(Game game) {
@@ -32,6 +35,16 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	@Override
 	public boolean providesFor(String league) {
 		return SupportedLeagues.MLB.name().equals(league);
+	}
+	
+	/**
+	 * Lookup method for park factors, should go in team statistics eventually.
+	 * 
+	 * @param game
+	 * @return
+	 */
+	public BigDecimal getHomeParkFactor(Game game) {
+		return parkService.findParkFactor(game.getHome().getName());
 	}
 
 	public GameStatistic createStatistics(Game game, List<Player> homeRoster, List<Player> awayRoster) {
