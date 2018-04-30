@@ -79,7 +79,7 @@ public class ExampleGameStatsProvider extends AbstractMlbGameStatsProvider {
 		BigDecimal awayPitcherSLG = BigDecimal.valueOf(.45);
 		BigDecimal awayPitcherGb = BigDecimal.valueOf(.4);
 		Optional<Player> awayPitcher = findByPosition(awayRoster, "P");
-		if(homePitcher.isPresent()) {
+		if(awayPitcher.isPresent()) {
 			Player player = awayPitcher.get();
 			Map<String, BigDecimal> pitchingStats = awayRoster.get(player);
 			awayPitcherOBP = pitchingStats.getOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_OBP_AGAINST, awayPitcherOBP);
