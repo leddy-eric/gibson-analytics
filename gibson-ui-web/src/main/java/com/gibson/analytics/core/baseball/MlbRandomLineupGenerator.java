@@ -32,20 +32,34 @@ public class MlbRandomLineupGenerator {
 	private List<String> FIELD_TYPE_INFIELD = Arrays.asList("1B","2B","3B","SS","C");
 	private List<String> FIELD_TYPE_OUTFIELD = Arrays.asList("LF","CF","RF", "OF");
 	
+	/**
+	 * 
+	 * @param team
+	 * @return
+	 */
 	public List<Player> getRandomLineup(GameTeam team) {
-		if(!randomLineups.containsKey(team.getName())) {
-			List<Player> lineup = generateRandomLineup(team);
-			randomLineups.put(team.getName(), lineup);
+		return getRandomLineup(team.getName());
+	}
+	
+	/**
+	 * 
+	 * @param teamName
+	 * @return
+	 */
+	public List<Player> getRandomLineup(String teamName) {
+		if(!randomLineups.containsKey(teamName)) {
+			List<Player> lineup = generateRandomLineup(teamName);
+			randomLineups.put(teamName, lineup);
 		}
 		
-		return randomLineups.get(team.getName());
+		return randomLineups.get(teamName);
 	}
 
-	private List<Player> generateRandomLineup(GameTeam team) {
-		log.info("Generate Lineup for "+ team.getName());
+	private List<Player> generateRandomLineup(String teamName) {
+		log.info("Generate Lineup for "+ teamName);
 		Map<String, List<Player>> positionMap = 
 				repository
-					.findByTeamAndStatus(team.getName(), "A")
+					.findByTeamAndStatus(teamName, "A")
 					.stream()
 					.collect(Collectors.groupingBy(Player::getPosition));
 		
@@ -113,7 +127,5 @@ public class MlbRandomLineupGenerator {
 		}
 		
 	}
-
-
 
 }

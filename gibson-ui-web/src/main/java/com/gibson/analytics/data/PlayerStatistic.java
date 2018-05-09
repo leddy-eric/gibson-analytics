@@ -4,6 +4,7 @@
 package com.gibson.analytics.data;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -29,7 +30,7 @@ public class PlayerStatistic implements Serializable {
 	private String name;
 	
 	@Column(nullable = false)
-	private String value;
+	private BigDecimal value;
 
 	/**
 	 * Gets the id.
@@ -66,25 +67,6 @@ public class PlayerStatistic implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-	/**
-	 * Gets the value.
-	 *
-	 * @return the value
-	 */
-	public String getValue() {
-		return value;
-	}
-
-	/**
-	 * Sets the value.
-	 *
-	 * @param value the new value
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
-
 	
 	/**
 	 * Gets the player id.
@@ -102,5 +84,19 @@ public class PlayerStatistic implements Serializable {
 	 */
 	public void setPlayerId(Long playerId) {
 		this.playerId = playerId;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public BigDecimal getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(BigDecimal value) {
+		this.value = value;
 	}
 }

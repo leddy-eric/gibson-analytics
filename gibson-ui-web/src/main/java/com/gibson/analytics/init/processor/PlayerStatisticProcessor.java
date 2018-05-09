@@ -1,5 +1,6 @@
 package com.gibson.analytics.init.processor;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.batch.item.ItemProcessor;
+import org.springframework.util.StringUtils;
 
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.PlayerStatistic;
@@ -39,15 +41,37 @@ public class PlayerStatisticProcessor implements ItemProcessor<Map<String, Strin
 				if(!skipColumns.contains(entry.getKey())) {
 					PlayerStatistic s = new PlayerStatistic();
 					s.setName(entry.getKey());
-					s.setValue(entry.getValue());
+					String value = entry.getValue();
 					s.setPlayerId(player.get().getId());
 					
-					stats.add(s);	
+					if(!StringUtils.isEmpty(value) && !value.equals("NA")) {
+						BigDecimal valueAsDecimal = extractValueAsDecimal(value);
+						s.setValue(valueAsDecimal);
+						stats.add(s);	
+					}
 				}
 			}
 		}
 
 		return stats;
+	}
+	
+	/**
+	 * Translate String to big decimal.
+	 * 
+	 * @param value
+	 * @return
+	 */
+	private BigDecimal extractValueAsDecimal(String value) {
+		if(StringUtils.hasText(value)) {
+			try {
+				return new BigDecimal(value);
+			} catch (Exception e) {
+				//System.out.println("Could not parse big decimal (" +value +") "+e.getMessage());
+			}			
+		}
+
+		return BigDecimal.valueOf(0);
 	}
 
 }

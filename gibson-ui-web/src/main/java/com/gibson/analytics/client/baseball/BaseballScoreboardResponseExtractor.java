@@ -1,8 +1,15 @@
 package com.gibson.analytics.client.baseball;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +26,6 @@ import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Scoreboard;
 import com.gibson.analytics.enums.MlbTeamLookup;
-import com.google.common.base.Optional;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
@@ -52,10 +58,9 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		return scoreboard;
 	}
 
-	private Game extractGameData(Map<String, Object> map) {
+	private Game extractGameData(Map<String, ?> map) {
 		Game result = new Game();
-		
-		
+
 		MutablePropertyValues values = new MutablePropertyValues();
 		map.forEach((k,v ) -> values.add(toCamel(k), v));
 		
@@ -65,8 +70,8 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		
 		result.setHome(extractGameTeam(HOME, values));
 		result.setAway(extractGameTeam(AWAY, values));
-		result.setLeague(SupportedLeagues.MLB.name());
-		
+		result.setLeague(SupportedLeagues.MLB.name());	
+		result.setUtc(extractGameTime(map));	
 		
 		if(log.isDebugEnabled()) {
 			try {
@@ -77,6 +82,43 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		}
 		
 		return result;
+	}
+
+	private String extractGameTime(Map<String, ?> map) {
+		Object media = JsonPath.read(map, "$.game_media.media");
+		
+		if(HashMap.class.isAssignableFrom(media.getClass())) {
+			return ((HashMap) media).get("start").toString();
+		} 
+
+		return JsonPath.read(media, "$[0].start").toString();
+	}
+
+	@SuppressWarnings("rawtypes")
+	private HashMap<String, String> flattenMap(String root, Map<String, ?> source, HashMap<String, String> target) {
+		Set<String> keySet = source.keySet();
+		
+		for (String key : keySet) {
+			Object value = source.get(key);
+			if(HashMap.class.isAssignableFrom(value.getClass())) {
+				flattenMap(root + "." + key, (HashMap) value, target);
+			} else {
+				String targetKey = root + "." + key;
+				target.put(targetKey, value.toString());
+			}
+			
+		}
+		
+		return target;
+	}
+
+	private Optional<String> extractValue(HashMap<?,?> map, String key) {
+		Object value = map.get(key);
+		if(value == null) {
+			return Optional.empty();
+		} 
+		
+		return Optional.of(value.toString());
 	}
 
 	private GameTeam extractGameTeam(String type, MutablePropertyValues values) {
@@ -100,7 +142,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 	}
 
 	private String extractStringValue(MutablePropertyValues values, String key) {
-		Optional<Object> value = Optional.fromNullable(values.get(key));
+		Optional<Object> value = Optional.ofNullable(values.get(key));
 		if(value.isPresent()) {
 			return value.get().toString();
 		}

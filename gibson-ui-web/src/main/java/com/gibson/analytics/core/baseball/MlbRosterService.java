@@ -45,8 +45,7 @@ public class MlbRosterService {
 		}
 		
 		return createActiveLineup(game);
-	}
-	
+	}	
 
 	/**
 	 * The data from the api does not have the full data needed.
