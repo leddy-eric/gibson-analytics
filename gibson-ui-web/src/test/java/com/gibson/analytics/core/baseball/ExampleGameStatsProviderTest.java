@@ -6,6 +6,8 @@ import static org.mockito.BDDMockito.given;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,16 +68,7 @@ public class ExampleGameStatsProviderTest {
 		GameStatistic createStatistics = provider.createStatistics(game);
 		
 		assertNotNull(createStatistics);
-		assertEquals("The defaults should calculate to 0.43900","0.43900", createStatistics.getValue());
-	}
-	
-	@Test
-	public void roundingErrors() {
-		// TODO - Talk to Aaron about this
-		String obp = BigDecimal.valueOf(.338).multiply(BigDecimal.valueOf(4)).divide(BigDecimal.valueOf(38.7),RoundingMode.HALF_DOWN).toString();
-		String perciseObp = BigDecimal.valueOf(.338).multiply(BigDecimal.valueOf(4.0)).divide(BigDecimal.valueOf(38.7),RoundingMode.HALF_DOWN).toString();
-		
-		// assertEquals(obp, perciseObp);		
+		assertEquals("The defaults should calculate to 0.43900", "0.43900", createStatistics.getValue());
 	}
 	
 	/**
@@ -117,8 +110,8 @@ public class ExampleGameStatsProviderTest {
 	private Player createTestPlayer(String name, String position) {
 		List<PlayerStatistic> playerStatistics = new ArrayList<>();
 	
-		playerStatistics.add(createTestStatistic("ParkNormalizedOBP", ".33"));
-		playerStatistics.add(createTestStatistic("ParkNormalizedSLG", ".44"));
+		playerStatistics.add(createTestStatistic("ParkNormalizedOBP", BigDecimal.valueOf(.33)));
+		playerStatistics.add(createTestStatistic("ParkNormalizedSLG",  BigDecimal.valueOf(.44)));
 		
 		return createTestPlayer(name, position, playerStatistics);
 	}
@@ -145,7 +138,7 @@ public class ExampleGameStatsProviderTest {
 	 * @param value
 	 * @return
 	 */
-	private PlayerStatistic createTestStatistic(String name, String value) {
+	private PlayerStatistic createTestStatistic(String name, BigDecimal value) {
 		PlayerStatistic playerStatistic = new PlayerStatistic();
 		
 		playerStatistic.setName(name);
