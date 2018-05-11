@@ -3,6 +3,7 @@ package com.gibson.analytics.core.baseball;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
@@ -14,13 +15,19 @@ import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.repository.PlayerRepository;
 
+/**
+ * This is turning into a bit of a mess, the whole baseball package needs to be refactored.
+ * 
+ * @author leddy.eric
+ *
+ */
 @Service
 public class MlbLineupService {
 	final static Logger log = LoggerFactory.getLogger(MlbLineupService.class);
 
 	@Autowired
 	private PlayerRepository repository;
-	
+
 	@Autowired
 	private MlbRandomLineupGenerator lineupGenerator;
 
@@ -32,9 +39,8 @@ public class MlbLineupService {
 	 * @param gametime
 	 * @param team
 	 * @param apiLineup
-	 * @return
 	 */
-	public MlbLineup findActiveLineup(ZonedDateTime gametime, GameTeam team, List<Player> apiLineup) {
+	public MlbLineup cacheLatestApiLineup(ZonedDateTime gametime, GameTeam team, List<Player> apiLineup) {
 		MlbLineup lineup = resolveLineup(gametime, team, apiLineup);
 
 		return active.merge(team.getName(), lineup, (oldLineup, newLineup) -> {
@@ -47,16 +53,51 @@ public class MlbLineupService {
 		});
 
 	}
-	
+
 	public MlbLineup findActive(GameTeam team) {
 		if(active.containsKey(team.getName())) {
-			return active.get(team.getName());
+			MlbLineup latest = active.get(team.getName());
+			
+			return constructActiveLineup(latest, team);
 		}
-		
-		return getRandomLineup(team);
+
+		return constructRandomLineup(team);
 	}
 
-	private MlbLineup getRandomLineup(GameTeam team) {
+	/**
+	 * 
+	 * @param latest
+	 * @param team
+	 * @return
+	 */
+	private MlbLineup constructActiveLineup(MlbLineup latest, GameTeam team) {
+		// TODO Auto-generated method stub
+		MlbLineup active = new MlbLineup();
+		
+		active.setTeam(latest.getTeam());
+		active.setLineup(latest.getLineup());
+		
+		MlbPitcher startingPitcher = findProbableStarter(team);
+		active.setStartingPitcher(startingPitcher);
+		
+		return active;
+	}
+
+	private MlbPitcher findProbableStarter(GameTeam team) {
+		if(team.getMetadata().containsKey("starter")) {
+			String starter = team.getMetadata().get("starter");
+			Optional<Player> probable = repository.findByName(starter);
+			
+			if(probable.isPresent()) {
+				return new MlbPitcher(probable.get());
+			}
+		}
+		
+		return new MlbPitcher();
+	}
+
+	private MlbLineup constructRandomLineup(GameTeam team) {
+		log.debug("Generate Random lineup: " + team.getName());
 		List<Player> randomLineup = lineupGenerator.getRandomLineup(team);
 		return resolveLineup(ZonedDateTime.now(), team, randomLineup);
 	}

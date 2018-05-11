@@ -14,6 +14,7 @@ public class MlbLineup {
 	
 	private String team;
 	private ZonedDateTime gametime;
+	private MlbPitcher startingPitcher;
 	private List<MlbPlayer> lineup;
 	
 	private double onBasePercentageCoef = .32;
@@ -130,11 +131,12 @@ public class MlbLineup {
 		Optional<MlbPlayer> player = lineup.stream()
 										.filter(p -> p.isPitcher())
 		        						.collect(Collectors.reducing((a, b) -> null));
-		if(player.isPresent()){
+		
+		if(player.isPresent() && startingPitcher == null) {
 			return new MlbPitcher(player.get());
 		}
 		
-		return new MlbPitcher();
+		return startingPitcher;
 	}
 
 	/**
@@ -218,5 +220,18 @@ public class MlbLineup {
 		return (runsFromOBPvsStarter + runsFromSLGvsStarter + runsFromBsR + runsRemovedFromDoublePlays);
 	}
 
+	/**
+	 * @return the startingPitcher
+	 */
+	public MlbPitcher getStartingPitcher() {
+		return startingPitcher;
+	}
+
+	/**
+	 * @param startingPitcher the startingPitcher to set
+	 */
+	public void setStartingPitcher(MlbPitcher startingPitcher) {
+		this.startingPitcher = startingPitcher;
+	}
 
 }

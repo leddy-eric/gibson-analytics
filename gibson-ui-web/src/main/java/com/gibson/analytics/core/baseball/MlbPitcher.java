@@ -2,6 +2,7 @@ package com.gibson.analytics.core.baseball;
 
 import java.math.BigDecimal;
 
+import com.gibson.analytics.data.Player;
 import com.gibson.analytics.init.CsvPitcherConstants;
 
 
@@ -37,6 +38,15 @@ public class MlbPitcher {
 		groundBalls = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .4);
 		rank = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_RANK, .5);
 		factor = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_FACTOR, .1);
+	}
+	
+	/**
+	 * Create a MlbPitcher using the Player provided.
+	 * 
+	 * @param p
+	 */
+	protected MlbPitcher(Player p) {
+		this(new MlbPlayer(p, -1));
 	}
 	
 	/**

@@ -31,15 +31,15 @@ public class LinearLineProvider extends AbstractMlbGameStatsProvider {
 		BigDecimal one = BigDecimal.valueOf(1);
 		BigDecimal negativeOne = BigDecimal.valueOf(-1);
 
-		if(line.compareTo(point535) != -1) {
-			//line = -(line*100)/(1-line);
-			line = line.multiply(oneHundred).divide(one.subtract(line),5,RoundingMode.HALF_UP).multiply(negativeOne);
-		}
-		if(line.compareTo(point535) == -1) {
+		if(line.compareTo(BigDecimal.valueOf(.5)) < 0) {
 			//line = (line*100)/(1-line);
-			line = line.multiply(oneHundred).divide(one.subtract(line),5,RoundingMode.HALF_UP);
-
+			line = one.subtract(line);
+			line = line.multiply(oneHundred).divide(one.subtract(line), 5, RoundingMode.HALF_UP);
+		} else {
+			//line = -(line*100)/(1-line);
+			line = line.multiply(oneHundred).divide(one.subtract(line), 5, RoundingMode.HALF_UP).multiply(negativeOne);			
 		}
+		
 		return line.setScale(2,RoundingMode.HALF_DOWN).toString();
 	}
 

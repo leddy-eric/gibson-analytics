@@ -2,17 +2,11 @@ package com.gibson.analytics.core.baseball;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
-import com.gibson.analytics.data.Player;
-import com.gibson.analytics.init.CsvPitcherConstants;
 
 @Component
 public class ExampleGameStatsProvider extends AbstractMlbGameStatsProvider {
@@ -23,7 +17,7 @@ public class ExampleGameStatsProvider extends AbstractMlbGameStatsProvider {
 		MlbPitcher awayPitcher = away.getPitcher();
 		
 		double runs = home.calculateRunsVsOpposingPicther(awayPitcher);
-		double awayRuns = home.calculateRunsVsOpposingPicther(homePitcher);
+		double awayRuns = away.calculateRunsVsOpposingPicther(homePitcher);
 		
 		return new GameStatistic("testLine", calculateLine(awayRuns, runs));
 	}

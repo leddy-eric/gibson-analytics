@@ -25,25 +25,46 @@ public class MlbGameService {
 	@Autowired
 	private MlbLineupService lineupService;
 
+	/**
+	 * 
+	 * @param game
+	 * @return
+	 */
 	public MlbGame getGameDetails(Game game) {
-		MlbGame gameDetails = new MlbGame();
 		
 		Lineup lineup = api.getLineup(game.getGameDataDirectory());
 		
 		if(lineupDataExists(lineup)) {
-			MlbLineup away = getActiveLineup(game.getUtc(), game.getAway(), lineup.getAway());
-			MlbLineup home = getActiveLineup(game.getUtc(), game.getHome(), lineup.getHome());
-			
-			gameDetails.setAway(away);
-			gameDetails.setHome(home);
-		} else {
-			MlbLineup away = lineupService.findActive(game.getAway());
-			MlbLineup home = lineupService.findActive(game.getHome());
-			
-			gameDetails.setAway(away);
-			gameDetails.setHome(home);
-		}
+			return mergeApiLineup(game, lineup);
+		} 		
 		
+		return createGameDetails(game);
+	}
+
+	private MlbGame createGameDetails(Game game) {
+		MlbGame gameDetails = new MlbGame();
+		
+		gameDetails.setAway(lineupService.findActive(game.getAway()));
+		gameDetails.setHome(lineupService.findActive(game.getHome()));
+		
+		return gameDetails;
+	}
+
+	/**
+	 * Merge the latest API response into the cache in the line up service and return newly constructed MlbGame.
+	 * 
+	 * @param game
+	 * @param lineup
+	 * @return
+	 */
+	protected MlbGame mergeApiLineup(Game game, Lineup lineup) {
+		MlbGame gameDetails = new MlbGame();
+		
+		MlbLineup away = cacheActiveLineup(game.getUtc(), game.getAway(), lineup.getAway());
+		MlbLineup home = cacheActiveLineup(game.getUtc(), game.getHome(), lineup.getHome());
+		
+		gameDetails.setAway(away);
+		gameDetails.setHome(home);
 		
 		return gameDetails;
 	}
@@ -52,8 +73,8 @@ public class MlbGameService {
 		return lineup.getStatus().is2xxSuccessful();
 	}
 
-	private MlbLineup getActiveLineup(String gametime, GameTeam team, List<Player> lineup) {
+	private MlbLineup cacheActiveLineup(String gametime, GameTeam team, List<Player> lineup) {
 		Assert.notNull(gametime, "MLBGameService requires a UTC Gametime");
-		return lineupService.findActiveLineup(ZonedDateTime.parse(gametime), team, lineup);
+		return lineupService.cacheLatestApiLineup(ZonedDateTime.parse(gametime), team, lineup);
 	}
 }

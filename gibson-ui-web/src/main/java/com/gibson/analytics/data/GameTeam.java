@@ -1,5 +1,8 @@
 package com.gibson.analytics.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This needs to be the UI model for teams.
  * 
@@ -12,6 +15,7 @@ public class GameTeam {
 	private String code;
 	private String record;
 	private String city;
+	private Map<String, String> metadata = new HashMap<>();
 	
 	/**
 	 * 
@@ -76,5 +80,20 @@ public class GameTeam {
 	public void setCity(String city) {
 		this.city = city;
 	}
+
+	/**
+	 * @return the metadata
+	 */
+	public Map<String, String> getMetadata() {
+		return metadata;
+	}
+
+	/**
+	 * @param metadata the metadata to set
+	 */
+	public void setMetadata(Map<String, String> metadata) {
+		this.metadata = metadata;
+	}
+
 
 }

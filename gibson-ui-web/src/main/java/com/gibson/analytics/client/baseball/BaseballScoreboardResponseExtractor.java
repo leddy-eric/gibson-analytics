@@ -1,15 +1,10 @@
 package com.gibson.analytics.client.baseball;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,33 +89,6 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		return JsonPath.read(media, "$[0].start").toString();
 	}
 
-	@SuppressWarnings("rawtypes")
-	private HashMap<String, String> flattenMap(String root, Map<String, ?> source, HashMap<String, String> target) {
-		Set<String> keySet = source.keySet();
-		
-		for (String key : keySet) {
-			Object value = source.get(key);
-			if(HashMap.class.isAssignableFrom(value.getClass())) {
-				flattenMap(root + "." + key, (HashMap) value, target);
-			} else {
-				String targetKey = root + "." + key;
-				target.put(targetKey, value.toString());
-			}
-			
-		}
-		
-		return target;
-	}
-
-	private Optional<String> extractValue(HashMap<?,?> map, String key) {
-		Object value = map.get(key);
-		if(value == null) {
-			return Optional.empty();
-		} 
-		
-		return Optional.of(value.toString());
-	}
-
 	private GameTeam extractGameTeam(String type, MutablePropertyValues values) {
 		GameTeam team = new GameTeam();
 		if(type == HOME) {
@@ -130,6 +98,12 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 			team.setName(apiTeam.team());
 			team.setRecord(extractStringValue(values, "homeWin")+"-" +
 					extractStringValue(values, "homeLoss"));
+			
+			String starter = extractStarter(values, "homeProbablePitcher");
+			
+			if(StringUtils.hasText(starter)) {
+				team.getMetadata().put("starter", starter);
+			}
 		} else {
 			MlbTeamLookup apiTeam = MlbTeamLookup.lookupFrom(extractStringValue(values, "awayTeamId"));
 			team.setCity(extractStringValue(values, "awayTeamCity"));
@@ -137,8 +111,32 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 			team.setName(apiTeam.team());
 			team.setRecord(extractStringValue(values, "awayWin")+"-" +
 					extractStringValue(values, "awayLoss"));
+			
+			String starter = extractStarter(values, "awayProbablePitcher");
+			
+			if(StringUtils.hasText(starter)) {
+				team.getMetadata().put("starter", starter);
+			}
 		}
 		return team;
+	}
+
+	private String extractStarter(MutablePropertyValues values, String key) {
+		StringBuilder name = new StringBuilder();
+		Object v = values.get(key);
+		
+		if(v != null) {
+			if(Map.class.isAssignableFrom(v.getClass())) {
+				Optional<Object> first = Optional.ofNullable(((Map) v).get("first"));
+				Optional<Object> last = Optional.ofNullable(((Map) v).get("last"));
+
+				first.ifPresent(f -> name.append(f.toString()));
+				name.append(' ');
+				last.ifPresent(l -> name.append(l.toString()));			
+			}			
+		}
+
+		return StringUtils.trimWhitespace(name.toString());
 	}
 
 	private String extractStringValue(MutablePropertyValues values, String key) {
@@ -152,7 +150,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 	private String toCamel(String key) {
 		String[] array = StringUtils.tokenizeToStringArray(key, "_");
 		
-		if(array.length > 1){
+		if(array.length > 1) {
 			StringBuffer camelCase = new StringBuffer(array[0]);
 			
 			for (int i = 1; i < array.length; i++) {
