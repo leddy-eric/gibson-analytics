@@ -19,7 +19,7 @@ public interface ScoreboardProvider {
 	 * @param date
 	 * @return
 	 */
-	Scoreboard getScoreboard(LocalDate datetime);
+	Scoreboard getScoreboard(LocalDate date);
 	
 	/**
 	 * Returns the league that this scoreboard supports.

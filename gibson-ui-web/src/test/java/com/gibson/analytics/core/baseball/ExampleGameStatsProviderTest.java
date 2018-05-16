@@ -102,8 +102,8 @@ public class ExampleGameStatsProviderTest {
 		home.add(createTestPlayer("Home Player 8", "RF"));
 		home.add(createTestPlayer("Home Player 9", "P"));
 		
-		lineup.setHome(home);
-		lineup.setAway(away);
+//		lineup.setHome(home);
+//		lineup.setAway(away);
 		return lineup;
 	}
 	

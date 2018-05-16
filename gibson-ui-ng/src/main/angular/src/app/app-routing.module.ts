@@ -6,6 +6,7 @@ import { TeamDetailComponent }  from './team-detail/team-detail.component';
 import { PlayerComponent }	    from './player/player.component';
 import { FootballComponent } from './football/football.component';
 import { HomeComponent }		from './home/home.component';
+import { MlbDetailComponent } from "./mlb-detail/mlb-detail.component";
 
 
 const routes: Routes = [
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: 'teams',  component: TeamComponent },
   { path: 'football',  component: FootballComponent },
   { path: 'team/:id', component: TeamDetailComponent},
+  { path: 'mlb/:id', component: MlbDetailComponent},
   { path: 'players', component: PlayerComponent }
 ];
 @NgModule({

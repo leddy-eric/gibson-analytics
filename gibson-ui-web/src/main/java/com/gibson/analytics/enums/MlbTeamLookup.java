@@ -57,16 +57,6 @@ public enum MlbTeamLookup {
 		return team;
 	}
 	
-	public static String apiTeamFrom(String team) {
-		for (MlbTeamLookup value : values()) {
-			if(team.equals(value.team)) {
-				return value.apiTeam;
-			}
-		}
-		
-		throw new UnsupportedOperationException("No MLB team name matches" +team);
-	}
-	
 	public static String teamFrom(String apiTeam) {
 		for (MlbTeamLookup value : values()) {
 			if(apiTeam.equals(value.apiTeam)) {
@@ -85,6 +75,16 @@ public enum MlbTeamLookup {
 		}
 		
 		throw new UnsupportedOperationException("No MLB team name matches" +apiIdentifier);	
+	}
+	
+	public static MlbTeamLookup lookupFromTeamName(String team) {
+		for (MlbTeamLookup value : values()) {
+			if(team.equals(value.team)) {
+				return value;
+			}
+		}
+		
+		throw new UnsupportedOperationException("No MLB team name matches" +team);
 	}
 
 

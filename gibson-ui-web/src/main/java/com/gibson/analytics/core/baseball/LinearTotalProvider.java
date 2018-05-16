@@ -18,7 +18,6 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
-		// TODO Auto-generated method stub
 		BigDecimal homeFactor = home.getPitcher().getFactor();
 		BigDecimal awayFactor = away.getPitcher().getFactor();
 

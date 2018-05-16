@@ -66,7 +66,8 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		result.setHome(extractGameTeam(HOME, values));
 		result.setAway(extractGameTeam(AWAY, values));
 		result.setLeague(SupportedLeagues.MLB.name());	
-		result.setUtc(extractGameTime(map));	
+		
+		extractGameTime(map).ifPresent(t -> result.setUtc(t));
 		
 		if(log.isDebugEnabled()) {
 			try {
@@ -79,14 +80,27 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		return result;
 	}
 
-	private String extractGameTime(Map<String, ?> map) {
+	private Optional<String> extractGameTime(Map<String, ?> map) {
 		Object media = JsonPath.read(map, "$.game_media.media");
+		if(media !=  null) {
+			// From map
+			if(Map.class.isAssignableFrom(media.getClass())) {
+				Object start = ((Map) media).get("start");
+				
+				if(start != null) {
+					return Optional.of(start.toString());
+				}
+			} else {
+				// From array
+				Object start = JsonPath.read(media, "$[0].start");
+				
+				if(start != null) {
+					return Optional.of(start.toString());
+				}
+			}	
+		}
 		
-		if(HashMap.class.isAssignableFrom(media.getClass())) {
-			return ((HashMap) media).get("start").toString();
-		} 
-
-		return JsonPath.read(media, "$[0].start").toString();
+		return Optional.empty();
 	}
 
 	private GameTeam extractGameTeam(String type, MutablePropertyValues values) {
@@ -102,7 +116,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 			String starter = extractStarter(values, "homeProbablePitcher");
 			
 			if(StringUtils.hasText(starter)) {
-				team.getMetadata().put("starter", starter);
+				team.getMetadata().put(MlbMetadata.KEY_STARTER, starter);
 			}
 		} else {
 			MlbTeamLookup apiTeam = MlbTeamLookup.lookupFrom(extractStringValue(values, "awayTeamId"));
@@ -115,7 +129,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 			String starter = extractStarter(values, "awayProbablePitcher");
 			
 			if(StringUtils.hasText(starter)) {
-				team.getMetadata().put("starter", starter);
+				team.getMetadata().put(MlbMetadata.KEY_STARTER, starter);
 			}
 		}
 		return team;

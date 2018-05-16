@@ -5,11 +5,13 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 
+import com.gibson.analytics.client.model.MatchupPlayer;
+
 public class Lineup {
 	
 	private HttpStatus status;
-	private List<Player> home = new ArrayList<>();
-	private List<Player> away = new ArrayList<>();
+	private List<MatchupPlayer> home = new ArrayList<>();
+	private List<MatchupPlayer> away = new ArrayList<>();
 	
 	/**
 	 * @return the status
@@ -28,28 +30,28 @@ public class Lineup {
 	/**
 	 * @return the home
 	 */
-	public List<Player> getHome() {
+	public List<MatchupPlayer> getHome() {
 		return home;
 	}
 
 	/**
 	 * @param home the home to set
 	 */
-	public void setHome(List<Player> home) {
+	public void setHome(List<MatchupPlayer> home) {
 		this.home = home;
 	}
 
 	/**
 	 * @return the away
 	 */
-	public List<Player> getAway() {
+	public List<MatchupPlayer> getAway() {
 		return away;
 	}
 
 	/**
 	 * @param away the away to set
 	 */
-	public void setAway(List<Player> away) {
+	public void setAway(List<MatchupPlayer> away) {
 		this.away = away;
 	}
 }

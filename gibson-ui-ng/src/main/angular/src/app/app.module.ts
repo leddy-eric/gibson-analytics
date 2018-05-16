@@ -19,6 +19,7 @@ import { TeamService }         from './team/team.service';
 import { HomeComponent }       from './home/home.component';
 import { TeamDetailComponent } from './team-detail/team-detail.component';
 import { FootballComponent } from './football/football.component';
+import { MlbDetailComponent } from './mlb-detail/mlb-detail.component';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { FootballComponent } from './football/football.component';
     PlayerComponent,
     HomeComponent,
     TeamDetailComponent,
-    FootballComponent
+    FootballComponent,
+    MlbDetailComponent
   ],
   imports: [
     NgbModule.forRoot(),

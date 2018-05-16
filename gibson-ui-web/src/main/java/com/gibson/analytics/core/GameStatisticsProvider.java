@@ -1,8 +1,5 @@
 package com.gibson.analytics.core;
 
-import java.math.BigDecimal;
-import java.util.Map;
-
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
 

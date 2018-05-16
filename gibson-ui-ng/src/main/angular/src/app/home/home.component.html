@@ -25,9 +25,14 @@
 		<div class="card-deck">
 			<div *ngFor="let game of scoreboard.games" class="col-md-4">
 				<div class="card bg-secondary">
-					<div class="card-header mb-0 text-white">
-						<h6>{{game.away.code}} @ {{game.home.code}} - {{game.time}}</h6>
+					<div *ngIf="game.league == 'MLB' else staticHeader" class="card-header mb-0 text-white">
+						<a class="text-white" [routerLink]="['/mlb', game.id]"> {{game.away.code}} @ {{game.home.code}} - {{game.time}} </a>
 					</div>
+					<ng-template #staticHeader>
+						<div class="card-header mb-0 text-white">
+							<h6>{{game.away.code}} @ {{game.home.code}} - {{game.time}}</h6>
+						</div>
+					</ng-template>
 					<div class="card-block bg-light">
 						<ul class="list-group">
 							<li *ngFor="let gameStatistic of game.gameStatistics"

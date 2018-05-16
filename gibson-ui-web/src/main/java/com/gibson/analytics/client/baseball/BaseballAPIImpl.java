@@ -137,11 +137,10 @@ public class BaseballAPIImpl implements BaseballAPI {
 	}
 
 	private void mapToLineup(Lineup lineup, MatchupTeam team) {
-		List<Player> playersInLineup =	
+		List<MatchupPlayer> playersInLineup =	
 				team.getPlayers().stream()
 					.filter(p -> p.getBatting() != null)
 					.sorted((p1, p2) -> p1.getBatting().compareTo(p2.getBatting()))
-					.map(p -> mapToPlayer(p))
 					.collect(Collectors.toList());
 		
 		if(team.getType().equals("away")){
@@ -149,13 +148,6 @@ public class BaseballAPIImpl implements BaseballAPI {
 		} else {
 			lineup.setHome(playersInLineup);
 		}
-	}
-	
-	private Player mapToPlayer(MatchupPlayer p) {
-		Player player = new Player();
-		player.setName(p.getFirst() + " " +p.getLast());
-		player.setPosition(p.getPosition());
-		return player;
 	}
 
 	private Lineup mapToLineup(ResponseEntity<Matchup> entity) {

@@ -19,7 +19,9 @@ public class Game {
 	
 	private String time;
 	private String utc;
+	private String status;
 	private String gameDataDirectory;
+
 	
 	private List<GameStatistic> gameStatistics = new ArrayList<>();
 	
@@ -133,6 +135,20 @@ public class Game {
 	 */
 	public void setUtc(String utc) {
 		this.utc = utc;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public String getStatus() {
+		return status;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setStatus(String status) {
+		this.status = status;
 	}
 	
 

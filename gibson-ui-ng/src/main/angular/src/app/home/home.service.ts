@@ -31,7 +31,7 @@ export class Scoreboard {
 }
 
 export class Game {
-	constructor(public id: string, public home: GameTeam, public away: GameTeam, 
+	constructor(public id: string, public league: string, public home: GameTeam, public away: GameTeam,
     public time: string, public gameStatistics: GameStatistic[] )  {}
 }
 

@@ -1,80 +1,186 @@
 package com.gibson.analytics.core.baseball;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
-import com.gibson.analytics.client.BaseballAPI;
+import com.gibson.analytics.client.baseball.MlbMetadata;
+import com.gibson.analytics.client.model.MatchupPlayer;
+import com.gibson.analytics.core.baseball.data.MlbGameActive;
+import com.gibson.analytics.core.baseball.data.MlbGameDetail;
+import com.gibson.analytics.core.baseball.data.MlbGameRoster;
+import com.gibson.analytics.core.baseball.data.MlbGameStatus;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
+import com.gibson.analytics.repository.PlayerRepository;
 
 @Service
 public class MlbGameService {
 	final static Logger log = LoggerFactory.getLogger(MlbGameService.class);
+
+	@Autowired
+	private MlbGameStatusService statusService;
 	
 	@Autowired
-	private BaseballAPI api;
-	
-	@Autowired
-	private MlbLineupService lineupService;
+	private PlayerRepository playerRepository;
 
 	/**
+	 * Returns the game from the existing game detail.
 	 * 
 	 * @param game
 	 * @return
 	 */
-	public MlbGame getGameDetails(Game game) {
+	public MlbGame getGame(MlbGameDetail detail) {
+		MlbGame game = new MlbGame();
 		
-		Lineup lineup = api.getLineup(game.getGameDataDirectory());
+		Optional<MlbGameRoster> away = Optional.ofNullable(detail.getAway());
 		
-		if(lineupDataExists(lineup)) {
-			return mergeApiLineup(game, lineup);
-		} 		
+		if(away.isPresent()) {
+			game.setAway(createLineup(away.get()));			
+		} 
 		
-		return createGameDetails(game);
-	}
+		Optional<MlbGameRoster> home = Optional.ofNullable(detail.getHome());
+		
+		if(home.isPresent()) {
+			game.setHome(createLineup(home.get()));			
+		}
 
-	private MlbGame createGameDetails(Game game) {
-		MlbGame gameDetails = new MlbGame();
+		return game;		
+	}
+	
+	private MlbLineup createLineup(MlbGameRoster roster) {
+		MlbLineup lineup = new MlbLineup();
+
+		List<MlbPlayer> batters = createLineup(roster.getLineup());
+		lineup.setLineup(batters);
 		
-		gameDetails.setAway(lineupService.findActive(game.getAway()));
-		gameDetails.setHome(lineupService.findActive(game.getHome()));
+		Optional<MlbGameActive> starter = Optional.ofNullable(roster.getProbable());
 		
-		return gameDetails;
+		if(starter.isPresent()) {
+			lineup.setStartingPitcher(new MlbPitcher(starter.get().getPlayer()));
+		} else {
+			lineup.setStartingPitcher(new MlbPitcher());	
+		}
+
+		lineup.setTeam(roster.getTeam().name());
+
+		return lineup;
 	}
 
 	/**
-	 * Merge the latest API response into the cache in the line up service and return newly constructed MlbGame.
+	 * Wrap the data.
+	 * 
+	 * @param lineup
+	 * @return
+	 */
+	private List<MlbPlayer> createLineup(List<MlbGameActive> lineup) {
+		return lineup.stream()
+				.map(a -> new MlbPlayer(a.getPlayer(), a.getBattingOrder()))
+				.collect(Collectors.toList());
+	}
+
+
+	/**
+	 * Handles the construction of a MlbGameDetails, the object returned is not a persistent entity.
 	 * 
 	 * @param game
 	 * @param lineup
 	 * @return
 	 */
-	protected MlbGame mergeApiLineup(Game game, Lineup lineup) {
-		MlbGame gameDetails = new MlbGame();
-		
-		MlbLineup away = cacheActiveLineup(game.getUtc(), game.getAway(), lineup.getAway());
-		MlbLineup home = cacheActiveLineup(game.getUtc(), game.getHome(), lineup.getHome());
-		
-		gameDetails.setAway(away);
-		gameDetails.setHome(home);
-		
-		return gameDetails;
+	public MlbGameDetail createGameDetails(Game game, Lineup lineup) {
+		MlbGameStatus status = statusService.statusFromApiResults(game, lineup);
+
+		MlbGameDetail detail = new MlbGameDetail();
+
+		detail.setApiId(game.getId());
+		detail.setStatus(status);
+
+		Optional<String> utc = Optional.ofNullable(game.getUtc());
+		if(utc.isPresent()) {
+			ZonedDateTime zonedDateTime = 
+					ZonedDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(utc.get()));
+			
+			detail.setGameDate(zonedDateTime.toLocalDate());			
+		}
+
+		detail.setAway(createTeamDetails(game.getAway(), lineup.getAway()));
+		detail.setHome(createTeamDetails(game.getHome(), lineup.getHome()));
+
+		return detail;
 	}
 
-	private boolean lineupDataExists(Lineup lineup) {
-		return lineup.getStatus().is2xxSuccessful();
+	private MlbGameRoster createTeamDetails(GameTeam team, List<MatchupPlayer> lineup) {
+		MlbGameRoster roster =  new MlbGameRoster();
+		roster.setSource("DEFAULT");
+		roster.setTeam(MlbTeamLookup.lookupFromTeamName(team.getName()));
+		
+		Optional<String> probable = Optional.ofNullable(team.getMetadata().get(MlbMetadata.KEY_STARTER));
+		
+		if(lineup != null && ! lineup.isEmpty()) {
+			List<MlbGameActive> activeLineup = new ArrayList<>(); 
+			roster.setSource("API");
+			
+			for (MatchupPlayer player : lineup) {
+				Optional<Player> p = resolvePlayer(player);
+				
+				if(p.isPresent()) {
+					MlbGameActive active = new MlbGameActive();
+					active.setBattingOrder(player.getBatting());
+					active.setPlayer(p.get());
+					activeLineup.add(active);
+					
+					if(player.getPosition().equals("P")) {
+						MlbGameActive starter = new MlbGameActive();
+						starter.setPlayer(p.get());
+						roster.setProbable(starter);		
+					}
+				}
+			}
+			
+			roster.setLineup(activeLineup);
+		} else {
+			if(probable.isPresent()) {
+				Optional<Player> pitcher = playerRepository.findByName(probable.get());
+				if(pitcher.isPresent()) {
+					MlbGameActive active = new MlbGameActive();
+					active.setPlayer(pitcher.get());
+					roster.setProbable(active);				
+				}
+			}	
+		}
+		
+		
+		return roster;
+	}
+	
+	/**
+	 * Return the DB player if one exists, otherwise just use the API player.
+	 * 
+	 * @param player
+	 * @return
+	 */
+	private Optional<Player> resolvePlayer(MatchupPlayer player) {
+		String name = new StringBuilder(player.getFirst())
+							.append(" ")
+							.append(player.getLast()).toString();
+		try {
+			return playerRepository.findByName(name);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+
+		return Optional.empty();
 	}
 
-	private MlbLineup cacheActiveLineup(String gametime, GameTeam team, List<Player> lineup) {
-		Assert.notNull(gametime, "MLBGameService requires a UTC Gametime");
-		return lineupService.cacheLatestApiLineup(ZonedDateTime.parse(gametime), team, lineup);
-	}
 }

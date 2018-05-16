@@ -102,6 +102,10 @@ public class MlbLineup {
 	 * @return
 	 */
 	private BigDecimal mapReduceWeighted(final String name, final double defaultValue) {
+		if(lineup.isEmpty()) {
+			return BigDecimal.valueOf(0);
+		}
+		
 		return lineup.stream()
 				.map(p -> p.calculateWeightedStatistic(name, defaultValue))
 				.reduce(BigDecimal::add).get();
@@ -114,6 +118,10 @@ public class MlbLineup {
 	 * @return
 	 */
 	private BigDecimal mapReduce(final String name, final double defaultValue) {
+		if(lineup.isEmpty()) {
+			return BigDecimal.valueOf(0);
+		}
+		
 		return lineup.stream()
 				.map(p -> p.getStatisticOrDefault(name, defaultValue))
 				.reduce(BigDecimal::add).get();

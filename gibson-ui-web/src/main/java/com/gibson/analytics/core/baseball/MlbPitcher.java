@@ -18,7 +18,8 @@ public class MlbPitcher {
 	private BigDecimal slugging = BigDecimal.valueOf(.45);
 	private BigDecimal groundBalls = BigDecimal.valueOf(.4);
 	private BigDecimal rank = BigDecimal.valueOf(.5);
-	private BigDecimal factor = BigDecimal.valueOf(.1);
+	private BigDecimal factor = BigDecimal.valueOf(1);
+	private MlbPlayer pitcher;
 	
 	/**
 	 * Create an MLB pitcher wrapper based on the defaults.
@@ -37,7 +38,8 @@ public class MlbPitcher {
 		slugging = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .45);
 		groundBalls = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .4);
 		rank = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_RANK, .5);
-		factor = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_FACTOR, .1);
+		factor = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_FACTOR, 1);
+		this.setPitcher(p);
 	}
 	
 	/**
@@ -117,6 +119,20 @@ public class MlbPitcher {
 	 */
 	public void setFactor(BigDecimal factor) {
 		this.factor = factor;
+	}
+
+	/**
+	 * @return the pitcher
+	 */
+	public MlbPlayer getPitcher() {
+		return pitcher;
+	}
+
+	/**
+	 * @param pitcher the pitcher to set
+	 */
+	public void setPitcher(MlbPlayer pitcher) {
+		this.pitcher = pitcher;
 	}
 
 }
