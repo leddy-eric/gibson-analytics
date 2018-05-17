@@ -5,6 +5,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,6 +49,9 @@ public class MlbApiMonitor {
 	
 	@Autowired
 	private MlbGameDetailRepository repository; 
+	
+	// Used to build the first pass
+	private AtomicBoolean initializing = new AtomicBoolean(true);
 
 	/**
 	 * Refresh the game date for the 
@@ -72,6 +77,13 @@ public class MlbApiMonitor {
 		
 		scoreboard.getGames().stream().forEach(g -> refreshGameData(g));
 	}
+	
+	@Scheduled(cron="0 0/10 * * * *")
+	public void refreshGameData() {
+		if(!initializing.get()) {
+			refreshGameData(LocalDate.now());
+		}
+	}
 
 
 	/**
@@ -89,24 +101,24 @@ public class MlbApiMonitor {
 	 * @param lineup
 	 */
 	private void refreshGameData(Game g, Lineup lineup) {
-		MlbGameDetail detail = gameService.createGameDetails(g, lineup);
+		MlbGameDetail latest = gameService.createGameDetails(g, lineup);
 		
-		Optional<MlbGameDetail> gameDetail = repository.findByApiId(detail.getApiId());
+		Optional<MlbGameDetail> existing = repository.findByApiId(latest.getApiId());
 		
-		if(gameDetail.isPresent()) {
-			refreshGameDetail(detail, gameDetail.get());			
+		if(existing.isPresent()) {
+			refreshGameDetail(latest, existing.get());			
 		} else {
-			saveGameDetail(detail);
+			saveGameDetail(latest);
 		}
 	}
 
 
 	private void saveGameDetail(MlbGameDetail detail) {
-		log.info("Save game "+detail.getApiId());
+		log.debug("Save game "+detail.getApiId());
 		MlbGameStatus status = detail.getStatus();
 		
 		if(MlbGameStatus.ESTIMATED == detail.getStatus()) {
-			log.info("Create default lineups "+detail.getApiId());
+			log.debug("Create default lineups "+detail.getApiId());
 			List<MlbGameActive> homeLineup = createDefaultLineup(detail.getHome());
 			List<MlbGameActive> awayLineup = createDefaultLineup(detail.getAway());
 			
@@ -161,12 +173,43 @@ public class MlbApiMonitor {
 
 
 	private void refreshGameDetail(MlbGameDetail newDetail, MlbGameDetail oldDetail) {
-		log.info("Refresh game "+newDetail.getApiId());
+		if(statusChanged(newDetail, oldDetail)) {
+			log.info("Refresh game "+newDetail.getApiId());
+			MlbGameStatus status = newDetail.getStatus();
+			
+			if(status == MlbGameStatus.ESTIMATED) {
+				log.info("Refresh default lineups "+newDetail.getApiId());
+				List<MlbGameActive> homeLineup = createDefaultLineup(newDetail.getHome());
+				List<MlbGameActive> awayLineup = createDefaultLineup(newDetail.getAway());
+				
+				newDetail.getHome().setLineup(homeLineup);
+				newDetail.getAway().setLineup(awayLineup);
+				
+				oldDetail.setHome(newDetail.getHome());
+				oldDetail.setAway(newDetail.getAway());
+				
+			} else if(status == MlbGameStatus.RECOMMEND) {
+				log.info("Refresh api lineups "+newDetail.getApiId());
+				
+				oldDetail.setHome(newDetail.getHome());
+				oldDetail.setAway(newDetail.getAway());
+			} 
+
+			oldDetail.setStatus(status);
+			
+			repository.save(oldDetail);			
+		}
 	}
 	
+	private boolean statusChanged(MlbGameDetail newDetail, MlbGameDetail oldDetail) {
+		return newDetail.getStatus() == oldDetail.getStatus();
+	}
+
+
 	@EventListener(ApplicationReadyEvent.class)
 	public void onStartup() {
-		this.refreshGameData(LocalDate.now().minusDays(2), LocalDate.now().plusDays(5));
+		this.refreshGameData(LocalDate.now().minusDays(2), LocalDate.now().plusDays(3));
+		initializing.set(false);
 	}
 
 }

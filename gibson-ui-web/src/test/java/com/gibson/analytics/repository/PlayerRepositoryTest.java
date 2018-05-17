@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.enums.MlbTeamLookup;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,7 +37,7 @@ public class PlayerRepositoryTest {
 	
 	@Test
 	public void testFindByTeam() {
-		List<Player> list = this.repository.findByTeam("Rockies");
+		List<Player> list = this.repository.findByTeam(MlbTeamLookup.ROCKIES.team());
 		
 		assertTrue(!list.isEmpty());
 	}
