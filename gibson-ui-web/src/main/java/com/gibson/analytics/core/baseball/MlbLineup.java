@@ -107,6 +107,7 @@ public class MlbLineup {
 		}
 		
 		return lineup.stream()
+				.filter(p -> !p.getPlayer().getPosition().equals("P"))
 				.map(p -> p.calculateWeightedStatistic(name, defaultValue))
 				.reduce(BigDecimal::add).get();
 	}
@@ -123,6 +124,7 @@ public class MlbLineup {
 		}
 		
 		return lineup.stream()
+				.filter(p -> !p.getPlayer().getPosition().equals("P"))
 				.map(p -> p.getStatisticOrDefault(name, defaultValue))
 				.reduce(BigDecimal::add).get();
 	}
