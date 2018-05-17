@@ -202,7 +202,7 @@ public class MlbApiMonitor {
 	}
 	
 	private boolean statusChanged(MlbGameDetail newDetail, MlbGameDetail oldDetail) {
-		return newDetail.getStatus() == oldDetail.getStatus();
+		return newDetail.getStatus() != oldDetail.getStatus();
 	}
 
 
