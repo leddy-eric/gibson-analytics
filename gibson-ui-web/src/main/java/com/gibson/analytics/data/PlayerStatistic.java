@@ -29,7 +29,7 @@ public class PlayerStatistic implements Serializable {
 	@Column(nullable = false)
 	private String name;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition="decimal(20, 10)")
 	private BigDecimal value;
 
 	/**

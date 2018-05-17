@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { HomeService, Scoreboard }	from './home.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { HomeService, Scoreboard }	from './home.service';
 import { NgbTabChangeEvent} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -12,9 +12,14 @@ import { NgbTabChangeEvent} from '@ng-bootstrap/ng-bootstrap';
 })
 export class HomeComponent implements OnInit {
   today: Date = new Date();
-  model: NgbDateStruct = {year: this.today.getFullYear(), month: this.today.getMonth() + 1, day: this.today.getDate() || 1 };
-  show: boolean = false;
-  selectedTab:string;
+
+  model: NgbDateStruct =
+    {year: this.today.getFullYear(),
+      month: this.today.getMonth() + 1,
+      day: this.today.getDate() || 1 };
+
+  show = false;
+  selectedTab: string;
   fullScoreboard: Scoreboard[] = [];
 
   constructor(private homeService: HomeService) { }
@@ -25,17 +30,17 @@ export class HomeComponent implements OnInit {
 
   ngOnDestroy() {
   }
-  
-  onSelect(newValue : NgbDateStruct) {
+
+  onSelect(newValue: NgbDateStruct) {
     console.log('changed', this.model, event);
-    this.model = newValue; 
+    this.model = newValue;
     this.show = false;
     this.homeService.getMatchupByDate(new Date(this.model.year, this.model.month - 1, this.model.day)).subscribe(
           games => this.fullScoreboard = games,
           err => console.error(err),
           () => this.show = true);
   }
-  
+
   loadData() {
     this.show = false;
     this.homeService.getMatchups().subscribe(
@@ -43,7 +48,7 @@ export class HomeComponent implements OnInit {
           err => console.error(err),
           () => this.show = true);
   }
-  
+
   tabChange($event: NgbTabChangeEvent) {
     this.selectedTab = $event.nextId;
   }

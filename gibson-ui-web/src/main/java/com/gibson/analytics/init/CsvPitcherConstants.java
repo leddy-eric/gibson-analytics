@@ -25,7 +25,7 @@ public interface CsvPitcherConstants {
 			COLUMN_PARKNORM_OBP_AGAINST,
 			COLUMN_PARKNORM_SLG_AGAINST,
 			COLUMN_IP_PER_GS,
-			COLUMN_GB_PERC};
+			COLUMN_GB_PERC };
 	
 	public static final String[] SUMMARY_HEADER = new String[] {			
 			COLUMN_NAME,
@@ -33,5 +33,5 @@ public interface CsvPitcherConstants {
 			COLUMN_PARKNORM_SLG_AGAINST,
 			COLUMN_GB_PERC,
 			COLUMN_RANK,
-			COLUMN_FACTOR};
+			COLUMN_FACTOR };
 }
