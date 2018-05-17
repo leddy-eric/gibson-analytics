@@ -34,12 +34,5 @@ public class PlayerRepositoryTest {
 		
 		assertTrue(!teamNames.isEmpty());
 	}
-	
-	@Test
-	public void testFindByTeam() {
-		List<Player> list = this.repository.findByTeam(MlbTeamLookup.ROCKIES.team());
-		
-		assertTrue(!list.isEmpty());
-	}
 
 }
