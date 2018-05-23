@@ -17,7 +17,7 @@ public class MlbLineup {
 	private MlbPitcher startingPitcher;
 	private List<MlbPlayer> lineup;
 	
-	private double onBasePercentageCoef = .32;
+	private double onBasePercentageCoef = 57;
 	private double onBasePercentageExCoef =  3.07;
 	
 	private double sluggingCoef = 10.56;
@@ -220,9 +220,11 @@ public class MlbLineup {
 
 
 		double runsFromOBPvsStarter = 
-				Math.pow(getOnBasePercentageCoef() * effectiveOBP.doubleValue(), getOnBasePercentageExCoef()) * 9/9; // When I bring in innings I can fix the first 9
+				getOnBasePercentageCoef() * Math.pow(effectiveOBP.doubleValue(), getOnBasePercentageExCoef()) * 9/9;
+				//Math.pow(getOnBasePercentageCoef() * effectiveOBP.doubleValue(), getOnBasePercentageExCoef()) * 9/9; // When I bring in innings I can fix the first 9
 		double runsFromSLGvsStarter = 
-				Math.pow(getSluggingCoef() * effectiveSlugging.doubleValue(), getSluggingExCoef()) * 9/9;
+				getSluggingCoef() * Math.pow(effectiveSlugging.doubleValue(), getSluggingExCoef()) * 9/9;
+				//Math.pow(getSluggingCoef() * effectiveSlugging.doubleValue(), getSluggingExCoef()) * 9/9;
 		
 		double runsFromBsR = calculateTeamBsR().doubleValue()/162;
 		double runsRemovedFromDoublePlays = opposingPitcher.getGroundBalls().doubleValue() * GDP_Coef.doubleValue();
