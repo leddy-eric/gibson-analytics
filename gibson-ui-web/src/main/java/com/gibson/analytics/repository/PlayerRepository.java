@@ -37,6 +37,13 @@ public interface PlayerRepository extends PagingAndSortingRepository<Player, Lon
 	public Optional<Player> findByName(String name);
 	
 	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Optional<Player> findByNameAndTeam(String name, String team);
+	
+	/**
 	 * Return all matches to the name.
 	 * 
 	 * @param name

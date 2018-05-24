@@ -7,10 +7,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.gibson.analytics.init.CsvPitcherConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.gibson.analytics.init.CsvPlayerConstants;
 
 public class MlbLineup {
+	
+	final static Logger log = LoggerFactory.getLogger(MlbLineup.class);
 	
 	private String team;
 	private ZonedDateTime gametime;
@@ -27,6 +31,7 @@ public class MlbLineup {
 	private static final BigDecimal LeagueAverageOBP = BigDecimal.valueOf(.32); 
 	private static final BigDecimal LeagueAverageSLG = BigDecimal.valueOf(.415);
 	private static final BigDecimal GDP_Coef = BigDecimal.valueOf(-.49);
+	private static final String POSITION_PITCHER = "P";
 	
 	/**
 	 * @return the team
@@ -76,7 +81,7 @@ public class MlbLineup {
 	 * @return
 	 */
 	public BigDecimal calculateTeamOnBasePercentage() {
-		return mapReduceWeighted(CsvPitcherConstants.COLUMN_PARKNORM_OBP_AGAINST, .33);
+		return mapReduceWeighted(CsvPlayerConstants.COLUMN_PARKNORMALIZEDOBP, .31);
 	}
 	
 	/**
@@ -84,7 +89,7 @@ public class MlbLineup {
 	 * @return
 	 */
 	public BigDecimal calculateTeamSlugging() {
-		return mapReduceWeighted(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .45);
+		return mapReduceWeighted(CsvPlayerConstants.COLUMN_PARKNORMALIZEDSLG, .40);
 	}
 	
 	/**
@@ -102,13 +107,21 @@ public class MlbLineup {
 	 * @return
 	 */
 	private BigDecimal mapReduceWeighted(final String name, final double defaultValue) {
+		double leagueTotalWeight =  38.7;
+		
 		if(lineup.isEmpty()) {
 			return BigDecimal.valueOf(0);
 		}
 		
+		if(lineup.size() < 10) {
+			leagueTotalWeight = 34.8;
+		}
+		
+		final double totalWeight = leagueTotalWeight;
+		
 		return lineup.stream()
-				.filter(p -> !p.getPlayer().getPosition().equals("P"))
-				.map(p -> p.calculateWeightedStatistic(name, defaultValue))
+				.filter(p -> !POSITION_PITCHER.equals(p.getPlayer().getPosition()))
+				.map(p -> p.calculateWeightedStatistic(name, defaultValue, totalWeight))
 				.reduce(BigDecimal::add).get();
 	}
 	
@@ -124,7 +137,7 @@ public class MlbLineup {
 		}
 		
 		return lineup.stream()
-				.filter(p -> !p.getPlayer().getPosition().equals("P"))
+				.filter(p -> !POSITION_PITCHER.equals(p.getPlayer().getPosition()))
 				.map(p -> p.getStatisticOrDefault(name, defaultValue))
 				.reduce(BigDecimal::add).get();
 	}
@@ -212,11 +225,16 @@ public class MlbLineup {
 	 * @return
 	 */
 	public double calculateRunsVsOpposingPicther(MlbPitcher opposingPitcher) {
+		log.info("Team: "+ this.team +" vs "+ opposingPitcher.getPitcher().getPlayer().getName());
 		BigDecimal obp = calculateTeamOnBasePercentage();
+		log.info("OBP: "+obp);
 		BigDecimal slg = calculateTeamSlugging();
+		log.info("slg: "+slg);
 		
 		BigDecimal effectiveOBP = obp.multiply(opposingPitcher.getOnBasePercentage()).divide(LeagueAverageOBP, 5, RoundingMode.HALF_UP);
+		log.info("effectiveOBP: "+effectiveOBP);
 		BigDecimal effectiveSlugging = slg.multiply(opposingPitcher.getSlugging()).divide(LeagueAverageSLG,5,RoundingMode.HALF_UP);
+		log.info("effectiveSlugging: "+effectiveSlugging);
 
 
 		double runsFromOBPvsStarter = 

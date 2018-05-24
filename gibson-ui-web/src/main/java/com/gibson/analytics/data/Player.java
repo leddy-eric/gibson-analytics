@@ -4,6 +4,7 @@
 package com.gibson.analytics.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -37,7 +38,7 @@ public class Player implements Serializable {
 	private String status;
 	
 	@OneToMany(mappedBy="playerId")
-	private List<PlayerStatistic> playerStatistics;
+	private List<PlayerStatistic> playerStatistics =  new ArrayList<>();
 
 	/**
 	 * Gets the id.

@@ -42,6 +42,24 @@ public class MlbPlayer implements CsvPlayerConstants, CsvPitcherConstants {
 			this.player.getStatistics().stream().forEach(s -> addStatistic(s));
 		}
 	}
+	
+	private MlbPlayer(int order, String name, String position, BigDecimal bsr, BigDecimal def, BigDecimal obp, BigDecimal slg) {		
+		this(new Player(), order);
+		setPlayerPosition(position);
+		setPlayerName(name);
+		addStatistic(CsvPlayerConstants.COLUMN_BSR, bsr);
+		addStatistic(CsvPlayerConstants.COLUMN_DEF, def);
+		addStatistic(CsvPlayerConstants.COLUMN_PARKNORMALIZEDOBP, obp);
+		addStatistic(CsvPlayerConstants.COLUMN_PARKNORMALIZEDSLG, slg);
+	}
+
+	private void setPlayerName(String name) {
+		this.player.setName(name);		
+	}
+
+	private void setPlayerPosition(String position) {
+		this.player.setPosition(position);
+	}
 
 	protected BigDecimal getStatisticOrDefault(String statisticName, double value) {
 		return map.getOrDefault(statisticName, BigDecimal.valueOf(value));
@@ -61,6 +79,28 @@ public class MlbPlayer implements CsvPlayerConstants, CsvPitcherConstants {
 				.multiply(BigDecimal.valueOf(weight))
 				.divide(BigDecimal.valueOf(38.7), RoundingMode.HALF_DOWN);
 	}
+	
+	/**
+	 * Calculates the weighted statistic by order
+	 * 
+	 * @param name - Statistic name
+	 * @param defaultValue - The value to use in the calculation when no statistic is present
+	 * @param totalWeight - The value to divide by based on the depth of the lineup
+	 * 
+	 * @return WeightedStatistic as a BigDecimal
+	 */
+	protected BigDecimal calculateWeightedStatistic(String name, double defaultValue, double totalWeight) {
+		double weight = 4.8 - (.1 * order);
+		
+		BigDecimal decimal = getStatisticOrDefault(name, defaultValue);
+
+		BigDecimal s = 
+				decimal
+				.multiply(BigDecimal.valueOf(weight))
+				.divide(BigDecimal.valueOf(totalWeight), RoundingMode.HALF_DOWN);
+		
+		return s;
+	}
 
 	/**
 	 * 
@@ -76,7 +116,16 @@ public class MlbPlayer implements CsvPlayerConstants, CsvPitcherConstants {
 	 * @param s
 	 */
 	private void addStatistic(PlayerStatistic s) {
-		map.put(s.getName(), s.getValue());
+		addStatistic(s.getName(), s.getValue());
+	}
+	
+	/**
+	 * Add a statistic.
+	 * 
+	 * @param s
+	 */
+	private void addStatistic(String name, BigDecimal value) {
+		map.put(name, value);
 	}
 
 	/**
@@ -105,6 +154,47 @@ public class MlbPlayer implements CsvPlayerConstants, CsvPitcherConstants {
 	 */
 	public void setPlayer(Player player) {
 		this.player = player;
+	}
+	
+	protected static final class Builder {
+		private int order;
+		private String name;
+		private String position;
+		private BigDecimal bsr = BigDecimal.valueOf(0);
+		private BigDecimal def = BigDecimal.valueOf(0);
+		private BigDecimal obp = BigDecimal.valueOf(0);
+		private BigDecimal slg = BigDecimal.valueOf(0);
+		
+		public Builder add(int order, String name, String position) {
+			this.order = order;
+			this.name = name;
+			this.position = position;
+			return this;
+		}
+		
+		public Builder bsr(double value) {
+			this.bsr = BigDecimal.valueOf(value);
+			return this;
+		}
+		
+		public Builder def(double value) {
+			this.def = BigDecimal.valueOf(value);
+			return this;
+		}
+		
+		public Builder obp(double value) {
+			this.obp = BigDecimal.valueOf(value);
+			return this;
+		}
+		
+		public Builder slg(double value) {
+			this.slg = BigDecimal.valueOf(value);
+			return this;
+		}
+
+		public MlbPlayer build() {
+			return new MlbPlayer(this.order, this.name, this.position, this.bsr, this.def, this.obp, this.slg);
+		}
 	}
 
 }

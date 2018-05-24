@@ -132,7 +132,7 @@ public class MlbGameService {
 			roster.setSource("API");
 			
 			for (MatchupPlayer player : lineup) {
-				Optional<Player> p = resolvePlayer(player);
+				Optional<Player> p = resolvePlayer(player, team.getName());
 				
 				if(p.isPresent()) {
 					MlbGameActive active = new MlbGameActive();
@@ -170,12 +170,12 @@ public class MlbGameService {
 	 * @param player
 	 * @return
 	 */
-	private Optional<Player> resolvePlayer(MatchupPlayer player) {
+	private Optional<Player> resolvePlayer(MatchupPlayer player, String team) {
 		String name = new StringBuilder(player.getFirst())
 							.append(" ")
 							.append(player.getLast()).toString();
 		try {
-			return playerRepository.findByName(name);
+			return playerRepository.findByNameAndTeam(name, team);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
