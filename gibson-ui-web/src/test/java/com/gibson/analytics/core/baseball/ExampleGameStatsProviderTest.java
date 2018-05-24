@@ -34,7 +34,7 @@ import com.gibson.analytics.data.PlayerStatistic;
 public class ExampleGameStatsProviderTest {
 	
 	@Autowired
-	private ExampleGameStatsProvider provider;
+	private ExponentialLineProvider provider;
 	
 	@MockBean
 	private MlbRosterService service;

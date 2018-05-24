@@ -9,17 +9,17 @@ import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
 
 @Component
-public class ExampleGameStatsProvider extends AbstractMlbGameStatsProvider {
+public class ExponentialLineProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {		
 		MlbPitcher homePitcher = home.getPitcher();
 		MlbPitcher awayPitcher = away.getPitcher();
 		
-		double runs = home.calculateRunsVsOpposingPicther(awayPitcher);
-		double awayRuns = away.calculateRunsVsOpposingPicther(homePitcher);
+		double runs = home.calculateRunsVsOpposingPicther(awayPitcher) + .1;
+		double awayRuns = away.calculateRunsVsOpposingPicther(homePitcher) - .1;
 		
-		return new GameStatistic("testLine", calculateLine(awayRuns, runs));
+		return new GameStatistic("ExLine", calculateLine(awayRuns, runs));
 	}
 	
 	/**
