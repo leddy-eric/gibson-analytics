@@ -1,1 +1,1 @@
-web: java -jar gibson-ui-web/target/gibson-ui-web-0.0.1-SNAPSHOT.jar
+web: java -Dserver.port=$PORT -jar gibson-ui-web/target/gibson-ui-web-0.0.1-SNAPSHOT.jar
