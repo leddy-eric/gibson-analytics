@@ -70,8 +70,8 @@ public class InitConfiguration {
     @Value("classpath:OffensivePlayerForWebsite.csv")
     private Resource defaultPlayerData;
     
-    @Value("classpath:Lineups.csv")
-    private Resource defaultLineupData;
+//    @Value("classpath:Lineups.csv")
+//    private Resource defaultLineupData;
     
     @Value("classpath:NBATeamRankings.csv")
     private Resource nbaTeamData;
@@ -142,18 +142,18 @@ public class InitConfiguration {
     	return pitcherReader;	
     }
     
-    @Bean
-    public FlatFileItemReader<Map<String, String>> lineupReader() {
-    	FlatFileItemReader<Map<String, String>> lineupReader = new FlatFileItemReader<>();
-    	
-    	lineupReader.setResource(defaultLineupData);
-    	
-    	// Skip header
-    	lineupReader.setLinesToSkip(1);
-    	lineupReader.setLineMapper(new CsvDataMapper(CsvLineupConstants.HEADER));
-    	
-    	return lineupReader;
-    }
+//    @Bean
+//    public FlatFileItemReader<Map<String, String>> lineupReader() {
+//    	FlatFileItemReader<Map<String, String>> lineupReader = new FlatFileItemReader<>();
+//    	
+//    	lineupReader.setResource(defaultLineupData);
+//    	
+//    	// Skip header
+//    	lineupReader.setLinesToSkip(1);
+//    	lineupReader.setLineMapper(new CsvDataMapper(CsvLineupConstants.HEADER));
+//    	
+//    	return lineupReader;
+//    }
     
     @Bean
     public FlatFileItemReader<Map<String, String>> nbaTeamReader() {
@@ -237,16 +237,16 @@ public class InitConfiguration {
                 .build();
     }
     
-    @Bean
-    public Step buildTeamLineups(){
-    	return stepBuilderFactory.get("buildTeamLineups")
-    			.<Map<String, String>, Batter> chunk(400)
-    			.reader(lineupReader())
-    			.processor(new BatterProcessor(playerRepository))
-                .faultTolerant()
-                .skip(IncorrectResultSizeDataAccessException.class)
-    			.writer(new BatterWriter(playerRepository, teamRepository))
-    			.build();
-    }
+//    @Bean
+//    public Step buildTeamLineups(){
+//    	return stepBuilderFactory.get("buildTeamLineups")
+//    			.<Map<String, String>, Batter> chunk(400)
+//    			.reader(lineupReader())
+//    			.processor(new BatterProcessor(playerRepository))
+//                .faultTolerant()
+//                .skip(IncorrectResultSizeDataAccessException.class)
+//    			.writer(new BatterWriter(playerRepository, teamRepository))
+//    			.build();
+//    }
     
 }
