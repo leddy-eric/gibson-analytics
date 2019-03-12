@@ -1,7 +1,6 @@
 package com.gibson.analytics.client.baseball;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,8 +41,7 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 			
 			for (Map<String, Object> map : games) {
 				if(map != null) {
-					Game game = extractGameData(map);
-					scoreboard.getGames().add(game);	
+					extractGameData(map).ifPresent(g -> scoreboard.getGames().add(g));
 				} else {
 					log.info("Scoreboard has null elements");
 				}
@@ -53,31 +51,42 @@ public class BaseballScoreboardResponseExtractor implements ResponseExtractor<Sc
 		return scoreboard;
 	}
 
-	private Game extractGameData(Map<String, ?> map) {
-		Game result = new Game();
+	private Optional<Game> extractGameData(Map<String, ?> map) {
+		try {
+			Game result = new Game();
 
-		MutablePropertyValues values = new MutablePropertyValues();
-		map.forEach((k,v ) -> values.add(toCamel(k), v));
-		
-		// Bind them
-		DataBinder data = new DataBinder(result);
-		data.bind(values);
-		
-		result.setHome(extractGameTeam(HOME, values));
-		result.setAway(extractGameTeam(AWAY, values));
-		result.setLeague(SupportedLeagues.MLB.name());	
-		
-		extractGameTime(map).ifPresent(t -> result.setUtc(t));
-		
-		if(log.isDebugEnabled()) {
-			try {
-				data.close();
-			} catch (BindException e) {
-				e.getAllErrors().forEach(error -> System.out.println("Could not bind: "+error.getObjectName()));
-			}
+			MutablePropertyValues values = new MutablePropertyValues();
+			map.forEach((k,v ) -> values.add(toCamel(k), v));
+			
+			// Bind them
+			DataBinder data = new DataBinder(result);
+			data.bind(values);
+			
+			result.setHome(extractGameTeam(HOME, values));
+			result.setAway(extractGameTeam(AWAY, values));
+			result.setLeague(SupportedLeagues.MLB.name());	
+			
+			extractGameTime(map).ifPresent(t -> result.setUtc(t));
+			
+			if(log.isDebugEnabled()) {
+				debugBinding(data);
+			}			
+			
+			return Optional.of(result);
+		} catch (Exception e) {
+			log.error("extractGameData failed", e);
 		}
+
 		
-		return result;
+		return Optional.empty();
+	}
+
+	private void debugBinding(DataBinder data) {
+		try {
+			data.close();
+		} catch (BindException e) {
+			e.getAllErrors().forEach(error -> System.out.println("Could not bind: "+error.getObjectName()));
+		}
 	}
 
 	private Optional<String> extractGameTime(Map<String, ?> map) {
