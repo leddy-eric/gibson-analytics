@@ -11,7 +11,9 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
@@ -86,15 +88,21 @@ public class MlbApiMonitor {
 	 * @param date
 	 */
 	public void refreshGameData(LocalDate date) {
-		Scoreboard scoreboard = api.getScoreboard(date);
-		
-		scoreboard.getGames().stream().forEach(g -> refreshGameData(g));
+		try {
+			Scoreboard scoreboard = api.getScoreboard(date);
+			scoreboard.getGames().stream().forEach(g -> refreshGameData(g));			
+		} catch (Exception e) {
+			log.error("Error refreshing game data "+date, e);
+		}
+
 	}
 	
-	@Scheduled(cron="0 0/10 * * * *")
+	@Scheduled(cron="0 0/5 * * * *")
 	public void refreshGameData() {
 		if(!initializing.get()) {
 			refreshGameData(LocalDate.now());
+		} else {
+			log.warn("Skipping refreshGameData... app initializing");
 		}
 	}
 
@@ -104,7 +112,11 @@ public class MlbApiMonitor {
 	 * @param g
 	 */
 	private void refreshGameData(Game g) {
-		refreshGameData(g, api.getLineup(g.getGameDataDirectory()));
+		try {
+			refreshGameData(g, api.getLineup(g.getGameDataDirectory()));			
+		} catch (Exception e) {
+			log.error("Error refreshing game data "+ g.getId(), e);
+		}
 	}
 
 
@@ -127,7 +139,7 @@ public class MlbApiMonitor {
 
 
 	private void saveGameDetail(MlbGameDetail detail) {
-		log.debug("Save game "+detail.getApiId());
+		log.debug("Save game "+ detail.getApiId());
 		MlbGameStatus status = detail.getStatus();
 		
 		if(MlbGameStatus.ESTIMATED == detail.getStatus()) {
@@ -218,12 +230,36 @@ public class MlbApiMonitor {
 		return newDetail.getStatus() != oldDetail.getStatus();
 	}
 
-
 	@EventListener(ApplicationReadyEvent.class)
-	public void onStartup() throws Exception {
-		jobLauncher.run(job, new JobParameters());
-		this.refreshGameData(LocalDate.now().minusDays(2), LocalDate.now().plusDays(3));
-		initializing.set(false);
+	public void onStartup() {
+		log.info("ApplicationReadyEvent recieved - Launching init Job ");
+		startupInitialization();
+	}
+
+	/**
+	 * Wrap the startup logic and handle the exceptions
+	 */
+	private void startupInitialization() {
+		try {
+			JobExecution execution = jobLauncher.run(job, new JobParameters());
+			
+			if(ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
+				log.info("Init Job Completed - Launching refresh data ");
+				this.refreshGameData(LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));			
+			} else {
+				log.error("Startup Initialization failed exit status was -" + execution.getExitStatus());
+			}
+		} catch (JobExecutionAlreadyRunningException e) {
+			log.error("Startup Initialization failed" , e);
+		} catch (JobRestartException e) {
+			log.error("Startup Initialization failed" , e);
+		} catch (JobInstanceAlreadyCompleteException e) {
+			log.error("Startup Initialization failed" , e);
+		} catch (JobParametersInvalidException e) {
+			log.error("Startup Initialization failed" , e);
+		} finally {
+			initializing.set(false);
+		}
 	}
 
 }

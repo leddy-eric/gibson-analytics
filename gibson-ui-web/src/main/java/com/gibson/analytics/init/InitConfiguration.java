@@ -4,23 +4,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.batch.api.chunk.listener.ChunkListener;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.SkipListener;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.job.flow.JobExecutionDecider;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.listener.SkipListenerSupport;
-import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,18 +20,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 
-import com.gibson.analytics.data.Batter;
-import com.gibson.analytics.data.PlayerStatistic;
 import com.gibson.analytics.data.NbaTeam;
 import com.gibson.analytics.data.Player;
-import com.gibson.analytics.init.processor.BatterProcessor;
-import com.gibson.analytics.init.processor.PlayerStatisticProcessor;
+import com.gibson.analytics.data.PlayerStatistic;
 import com.gibson.analytics.init.processor.NbaTeamProcessor;
 import com.gibson.analytics.init.processor.PlayerRowProcessor;
-import com.gibson.analytics.init.writer.BatterWriter;
-import com.gibson.analytics.repository.PlayerStatisticRepository;
+import com.gibson.analytics.init.processor.PlayerStatisticProcessor;
 import com.gibson.analytics.repository.NbaTeamRepository;
 import com.gibson.analytics.repository.PlayerRepository;
+import com.gibson.analytics.repository.PlayerStatisticRepository;
 import com.gibson.analytics.repository.TeamRepository;
 
 @Configuration

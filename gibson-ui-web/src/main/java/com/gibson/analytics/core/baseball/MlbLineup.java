@@ -225,16 +225,16 @@ public class MlbLineup {
 	 * @return
 	 */
 	public double calculateRunsVsOpposingPicther(MlbPitcher opposingPitcher) {
-		log.info("Team: "+ this.team +" vs "+ opposingPitcher.getPitcher().getPlayer().getName());
+		log.debug("Team: "+ this.team +" vs "+ opposingPitcher.getPitcher().getPlayer().getName());
 		BigDecimal obp = calculateTeamOnBasePercentage();
-		log.info("OBP: "+obp);
+		log.debug("OBP: "+obp);
 		BigDecimal slg = calculateTeamSlugging();
-		log.info("slg: "+slg);
+		log.debug("slg: "+slg);
 		
 		BigDecimal effectiveOBP = obp.multiply(opposingPitcher.getOnBasePercentage()).divide(LeagueAverageOBP, 5, RoundingMode.HALF_UP);
-		log.info("effectiveOBP: "+effectiveOBP);
+		log.debug("effectiveOBP: "+effectiveOBP);
 		BigDecimal effectiveSlugging = slg.multiply(opposingPitcher.getSlugging()).divide(LeagueAverageSLG,5,RoundingMode.HALF_UP);
-		log.info("effectiveSlugging: "+effectiveSlugging);
+		log.debug("effectiveSlugging: "+effectiveSlugging);
 
 
 		double runsFromOBPvsStarter = 

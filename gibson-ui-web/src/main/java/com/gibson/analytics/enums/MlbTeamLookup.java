@@ -64,7 +64,7 @@ public enum MlbTeamLookup {
 			}
 		}
 		
-		throw new UnsupportedOperationException("No MLB team name matches" +apiTeam);	
+		throw new UnsupportedOperationException("No MLB team name matches " +apiTeam);	
 	}
 	
 	public static MlbTeamLookup lookupFrom(String apiIdentifier) {
@@ -74,7 +74,7 @@ public enum MlbTeamLookup {
 			}
 		}
 		
-		throw new UnsupportedOperationException("No MLB team name matches" +apiIdentifier);	
+		throw new UnsupportedOperationException("No MLB team name matches " +apiIdentifier);	
 	}
 	
 	public static MlbTeamLookup lookupFromTeamName(String team) {
@@ -84,7 +84,7 @@ public enum MlbTeamLookup {
 			}
 		}
 		
-		throw new UnsupportedOperationException("No MLB team name matches" +team);
+		throw new UnsupportedOperationException("No MLB team name matches " +team);
 	}
 
 

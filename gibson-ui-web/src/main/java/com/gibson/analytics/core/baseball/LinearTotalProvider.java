@@ -26,7 +26,6 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 
 	private String createLinearTotal(Game game, BigDecimal homePitcherFactor, BigDecimal awayPitcherFactor) {
 		BigDecimal homefieldFactor = getHomeParkFactor(game);
-		System.out.println(homefieldFactor);
 
 		BigDecimal nine = BigDecimal.valueOf(9);
 		BigDecimal gameTotal = homePitcherFactor.multiply(awayPitcherFactor)

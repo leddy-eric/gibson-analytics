@@ -19,7 +19,7 @@ public class BasketballAPIImpl implements BasketballAPI {
 	private static final Logger log = LoggerFactory.getLogger(BasketballAPIImpl.class);
 	
     private final String HOSTNAME = "http://data.nba.com";
-    private final String RESOURCE_SCOREBOARD = "data/10s/v2015/json/mobile_teams/nba/2017/league/00_full_schedule_week.json";
+    private final String RESOURCE_SCOREBOARD = "data/10s/v2015/json/mobile_teams/nba/2018/league/00_full_schedule_week.json";
 	
     @Autowired
     private RestTemplate restTemplate;
