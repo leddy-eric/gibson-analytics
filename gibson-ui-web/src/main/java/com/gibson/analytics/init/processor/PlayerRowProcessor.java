@@ -24,20 +24,9 @@ public class PlayerRowProcessor implements ItemProcessor<Map<String, String>, Pl
 
 	@Override
 	public Player process(Map<String, String> row) throws Exception {
-		Player player = null;
-
-		Optional<Player> playerOptional = repository.findByName(row.get(COLUMN_NAME));
-		
-		if(playerOptional.isPresent()) {
-			player = playerOptional.get();
-		} else {
-			player = new Player();
-			player.setName(row.get(COLUMN_NAME));
-			player.setTeam(row.get(COLUMN_TEAM));
-			player.setStatus("I");		
-		}
-		
-		return player;
+		return repository
+				.findById(Long.parseLong(row.get(COLUMN_PLAYERID)))
+				.orElseThrow(UnsupportedOperationException::new);
 	}
 
 }

@@ -54,4 +54,8 @@ public class Lineup {
 	public void setAway(List<MatchupPlayer> away) {
 		this.away = away;
 	}
+	
+	public boolean isValid() {
+		return (!home.isEmpty() && !away.isEmpty());
+	}
 }

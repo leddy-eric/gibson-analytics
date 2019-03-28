@@ -16,14 +16,18 @@ public class PlayerSkipListener extends SkipListenerSupport<Map<String, String>,
 	@Override
 	public void onSkipInProcess(Map<String, String> item, Throwable t) {
 		StringBuffer error = new StringBuffer("Exception thrown in processor (");
-		error.append(errors.incrementAndGet());
+		int errorCount = errors.incrementAndGet();
+		error.append(errorCount);
 		error.append(") "); 
 		error.append(t.getMessage());
 		
 		if(! UnsupportedOperationException.class.isAssignableFrom(t.getClass())) {
-			error.append(" ").append(item.get(CsvPlayerConstants.COLUMN_NAME));
+			error.append(" ").append(item.get(CsvPlayerConstants.COLUMN_PLAYERID));
 		} 
 		
-		log.warn(error.append(" - ").append(item.get(CsvPlayerConstants.COLUMN_TEAM)).toString());
+		if(errorCount % 10 == 0) {
+			log.warn(error.append(" - ").append(item.get(CsvPlayerConstants.COLUMN_PLAYERID)).toString());			
+		}
+
 	}
 }

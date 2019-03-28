@@ -27,16 +27,36 @@ export class MlbDetailComponent implements OnInit {
       return this.getStat(active.player, 'ParkNormalizedSLG');
   }
 
+  getStrikeOutValue(active: MlbActive) {
+      return this.getStat(active.player, 'totalBatterStrikeoutRate');
+  }
+  
+   getPitchingStrikeOutValue(active: MlbActive) {
+      return this.getStat(active.player, 'totalPitcherStrikeoutRate');
+  }
+  
+  getWalkValue(active: MlbActive) {
+      return this.getStat(active.player, 'totalBatterWalkRate');
+  }  
+  
+  getPitchingWalkValue(active: MlbActive) {
+      return this.getStat(active.player, 'totalPitcherWalkRate');
+  } 
+  
   getObpValue(active: MlbActive) {
-      return this.getStat(active.player, 'ParkNormalizedOBP');
+      return this.getStat(active.player, 'totalBatterwOBA');
   }
 
+  getPitchingObpValue(active: MlbActive) {
+      return this.getStat(active.player, 'totalPitcherwOBA');
+  }
+  
   getSluggingAgainstValue(active: MlbActive) {
       return this.getStat(active.player, 'ParkNormalizedSLGAgainst');
   }
 
   getObpAgainstValue(active: MlbActive) {
-      return this.getStat(active.player, 'ParkNormalizedOBPAgainst');
+      return this.getStat(active.player, 'totalPitcherwOBA');
   }
 
   getRankValue(active: MlbActive) {
@@ -52,11 +72,11 @@ export class MlbDetailComponent implements OnInit {
   }
 
   getBsrValue(active: MlbActive) {
-      return this.getStat(active.player, 'BsR');
+      return this.getStat(active.player, 'BsRperPA');
   }
 
   getDefValue(active: MlbActive) {
-      return this.getStat(active.player, 'Def');
+      return this.getStat(active.player, 'DefperInn');
   }
 
   getStat(player: MlbPlayer, name: string) {

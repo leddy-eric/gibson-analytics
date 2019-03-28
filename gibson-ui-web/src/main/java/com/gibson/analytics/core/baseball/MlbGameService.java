@@ -18,12 +18,15 @@ import com.gibson.analytics.core.baseball.data.MlbGameActive;
 import com.gibson.analytics.core.baseball.data.MlbGameDetail;
 import com.gibson.analytics.core.baseball.data.MlbGameRoster;
 import com.gibson.analytics.core.baseball.data.MlbGameStatus;
+import com.gibson.analytics.core.baseball.stats.StatisticFactory;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Lineup;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.data.Team;
 import com.gibson.analytics.enums.MlbTeamLookup;
 import com.gibson.analytics.repository.PlayerRepository;
+import com.gibson.analytics.repository.TeamRepository;
 
 @Service
 public class MlbGameService {
@@ -34,6 +37,9 @@ public class MlbGameService {
 	
 	@Autowired
 	private PlayerRepository playerRepository;
+	
+	@Autowired
+	private TeamRepository teamRepository;
 
 	/**
 	 * Returns the game from the existing game detail.
@@ -60,6 +66,7 @@ public class MlbGameService {
 	}
 	
 	private MlbLineup createLineup(MlbGameRoster roster) {
+		// TODO - clean this up
 		MlbLineup lineup = new MlbLineup();
 
 		List<MlbPlayer> batters = createLineup(roster.getLineup());
@@ -68,9 +75,18 @@ public class MlbGameService {
 		Optional<MlbGameActive> starter = Optional.ofNullable(roster.getProbable());
 		
 		if(starter.isPresent()) {
-			lineup.setStartingPitcher(new MlbPitcher(starter.get().getPlayer()));
+			Player p = starter.get().getPlayer();
+			MlbPitcher startingPitcher = new MlbPitcher(p);
+			
+			lineup.setStartingPitcher(startingPitcher);
+			
+			Team team = teamRepository.findById(roster.getTeam().team()).get();
+			
+			lineup.setBullpen(StatisticFactory.bullpenFrom(team, p));
+
 		} else {
-			lineup.setStartingPitcher(new MlbPitcher());	
+			lineup.setStartingPitcher(new MlbPitcher());
+			lineup.setBullpen(StatisticFactory.leagueAverageBullpen());
 		}
 
 		lineup.setTeam(roster.getTeam().name());
@@ -86,7 +102,7 @@ public class MlbGameService {
 	 */
 	private List<MlbPlayer> createLineup(List<MlbGameActive> lineup) {
 		return lineup.stream()
-				.map(a -> new MlbPlayer(a.getPlayer(), a.getBattingOrder()))
+				.map(a -> new MlbPlayer(a.getPlayer()))
 				.collect(Collectors.toList());
 	}
 

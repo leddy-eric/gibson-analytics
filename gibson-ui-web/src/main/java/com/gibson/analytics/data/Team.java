@@ -1,12 +1,12 @@
 package com.gibson.analytics.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderColumn;
 
 /**
  * The Class Team.
@@ -19,24 +19,9 @@ public class Team implements Serializable {
 	@Id
 	private String name;
 	
-	@OneToMany
-	@OrderColumn
-	private List<Player> lineup;
+	@OneToMany(mappedBy="teamId")
+	private List<TeamStatistic> teamStatistics =  new ArrayList<>();
 	
-	
-	/**
-	 * @return the lineup
-	 */
-	public List<Player> getLineup() {
-		return lineup;
-	}
-
-	/**
-	 * @param lineup the lineup to set
-	 */
-	public void setLineup(List<Player> lineup) {
-		this.lineup = lineup;
-	}
 
 	/**
 	 * @return the name
@@ -50,6 +35,20 @@ public class Team implements Serializable {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	/**
+	 * @return the teamStatistics
+	 */
+	public List<TeamStatistic> getTeamStatistics() {
+		return teamStatistics;
+	}
+
+	/**
+	 * @param teamStatistics the teamStatistics to set
+	 */
+	public void setTeamStatistics(List<TeamStatistic> teamStatistics) {
+		this.teamStatistics = teamStatistics;
 	}
 
 }

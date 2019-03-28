@@ -21,11 +21,12 @@
 											<tr>
 												<th scope="col">#</th>
 												<th scope="col">Name</th>
-												<th scope="col">Position</th>
-												<th scope="col">Bsr</th>
+												<th scope="col">:</th>
+												<th scope="col">SO%</th>
+												<th scope="col">BB%</th>
+												<th scope="col">wOBA</th>
+												<th scope="col">BsR</th>
 												<th scope="col">Def</th>
-												<th scope="col">OBP</th>
-												<th scope="col">SLG</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -33,10 +34,11 @@
 												<td>{{awayActive.battingOrder}}</td>
 												<td>{{awayActive.player.name}}</td>
 												<td>{{awayActive.player.position}}</td>
+												<td>{{getStrikeOutValue(awayActive) | number}}</td>
+												<td>{{getWalkValue(awayActive) | number}}</td>
+												<td>{{getObpValue(awayActive) | number}}</td>
 												<td>{{getBsrValue(awayActive) | number}}</td>
 												<td>{{getDefValue(awayActive) | number}}</td>
-												<td>{{getObpValue(awayActive) | number}}</td>
-												<td>{{getSluggingValue(awayActive) | number}}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -49,11 +51,12 @@
 											<tr>
 												<th scope="col">#</th>
 												<th scope="col">Name</th>
-												<th scope="col">Position</th>
-												<th scope="col">Bsr</th>
+												<th scope="col">:</th>
+												<th scope="col">SO%</th>
+												<th scope="col">BB%</th>
+												<th scope="col">wOBA</th>
+												<th scope="col">BsR</th>
 												<th scope="col">Def</th>
-												<th scope="col">OBP</th>
-												<th scope="col">SLG</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -61,10 +64,11 @@
 												<td>{{homeActive.battingOrder}}</td>
 												<td>{{homeActive.player.name}}</td>
 												<td>{{homeActive.player.position}}</td>
+												<td>{{getStrikeOutValue(homeActive) | number}}</td>
+												<td>{{getWalkValue(homeActive) | number}}</td>
+												<td>{{getObpValue(homeActive) | number}}</td>
 												<td>{{getBsrValue(homeActive) | number}}</td>
 												<td>{{getDefValue(homeActive) | number}}</td>
-												<td>{{getObpValue(homeActive) | number}}</td>
-												<td>{{getSluggingValue(homeActive) | number}}</td>
 											</tr>
 										</tbody>
 									</table>
@@ -87,21 +91,23 @@
 										<thead>
 											<tr>
 												<th scope="col">Name</th>
-												<th scope="col">OBP</th>
-												<th scope="col">SLG</th>
-												<th scope="col">GB %</th>
-												<th scope="col">Factor</th>
-												<th scope="col">Rank</th>
+												<th scope="col">SO%</th>
+												<th scope="col">BB%</th>
+												<th scope="col">wOBA</th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr>
-												<td>{{detail.away.probable.player.name}}</td>
-												<td>{{getObpAgainstValue(detail.away.probable) | number}}</td>
-												<td>{{getSluggingAgainstValue(detail.away.probable) | number}}</td>
-												<td>{{getGbpValue(detail.away.probable) | number}}</td>
-												<td>{{getFactorValue(detail.away.probable) | number}}</td>
-												<td>{{getRankValue(detail.away.probable) | number}}</td>
+											<tr *ngIf="detail.away.probable">
+											    <td>{{detail.away.probable.player.name}}</td>
+												<td>{{getPitchingStrikeOutValue(detail.away.probable) | number}}</td>
+												<td>{{getPitchingWalkValue(detail.away.probable) | number}}</td>
+												<td>{{getPitchingObpValue(detail.away.probable) | number}}</td>											
+											</tr>
+											<tr *ngIf="!detail.away.probable">
+												<td>None</td>
+												<td></td>
+												<td></td>
+												<td></td>
 											</tr>
 										</tbody>
 									</table>
@@ -113,21 +119,23 @@
 										<thead>
 											<tr>
 												<th scope="col">Name</th>
-												<th scope="col">OBP</th>
-												<th scope="col">SLG</th>
-												<th scope="col">GB %</th>
-												<th scope="col">Factor</th>
-												<th scope="col">Rank</th>
+												<th scope="col">SO%</th>
+												<th scope="col">BB%</th>
+												<th scope="col">wOBA</th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr>
+											<tr *ngIf="detail.home.probable">
 												<td>{{detail.home.probable.player.name}}</td>
-												<td>{{getObpAgainstValue(detail.home.probable) | number}}</td>
-												<td>{{getSluggingAgainstValue(detail.home.probable) | number}}</td>
-												<td>{{getGbpValue(detail.home.probable) | number}}</td>
-												<td>{{getFactorValue(detail.home.probable) | number}}</td>
-												<td>{{getRankValue(detail.home.probable) | number}}</td>
+												<td>{{getPitchingStrikeOutValue(detail.home.probable) | number}}</td>
+												<td>{{getPitchingWalkValue(detail.home.probable) | number}}</td>
+												<td>{{getPitchingObpValue(detail.home.probable) | number}}</td>
+											</tr>
+											<tr *ngIf="!detail.home.probable">
+												<td>None</td>
+												<td></td>
+												<td></td>
+												<td></td>
 											</tr>
 										</tbody>
 									</table>

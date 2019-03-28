@@ -14,13 +14,7 @@ public class LinearLineProvider extends AbstractMlbGameStatsProvider {
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
 		// TODO Auto-generated method stub
-		MlbPitcher homePitcher = home.getPitcher();
-		MlbPitcher awayPitcher = away.getPitcher();
-
-		BigDecimal homeRank = homePitcher.getRank();
-		BigDecimal awayRank = awayPitcher.getRank();
-
-		return new GameStatistic("Linear Line", calculateLine(homeRank, awayRank));
+		return new GameStatistic("Linear Line", "N/A");
 	}
 
 	private String calculateLine(BigDecimal homeRank, BigDecimal awayRank) {

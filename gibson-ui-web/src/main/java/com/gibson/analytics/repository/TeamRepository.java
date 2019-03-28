@@ -6,6 +6,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import com.gibson.analytics.data.Team;
 
 @RepositoryRestResource(exported=false)
-public interface TeamRepository extends PagingAndSortingRepository<Team, Long> {
+public interface TeamRepository extends PagingAndSortingRepository<Team, String> {
 
 }

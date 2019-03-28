@@ -13,14 +13,14 @@ import org.springframework.util.StringUtils;
 
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.PlayerStatistic;
-import com.gibson.analytics.init.CsvPlayerConstants;
+import com.gibson.analytics.init.CsvPitcherConstants;
 import com.gibson.analytics.repository.PlayerRepository;
 
-public class PlayerStatisticProcessor implements ItemProcessor<Map<String, String>, List<PlayerStatistic>>, CsvPlayerConstants {
+public class PitcherStatisticProcessor implements ItemProcessor<Map<String, String>, List<PlayerStatistic>>, CsvPitcherConstants {
 	
 	private PlayerRepository repository;
 	
-	public PlayerStatisticProcessor(PlayerRepository repository) {
+	public PitcherStatisticProcessor(PlayerRepository repository) {
 		this.repository = repository;
 	}
 
@@ -47,7 +47,7 @@ public class PlayerStatisticProcessor implements ItemProcessor<Map<String, Strin
 				String value = entry.getValue();
 				s.setPlayerId(player.get().getId());
 
-				if(entry.getKey().equals(CsvPlayerConstants.COLUMN_BATS)) {
+				if(entry.getKey().equals(CsvPitcherConstants.COLUMN_THROWS)) {
 					if(value.equals("L")) {
 						s.setValue(BigDecimal.ONE.negate());
 					} else  if (value.equals("S")){
@@ -66,7 +66,7 @@ public class PlayerStatisticProcessor implements ItemProcessor<Map<String, Strin
 
 				}
 			}
-		}
+		} 
 
 		return stats;
 	}

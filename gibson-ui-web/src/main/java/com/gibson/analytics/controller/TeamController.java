@@ -43,7 +43,7 @@ public class TeamController {
     			teamRepository.findAll();
     	
     	for (Team team : teams) {
-    		team.getLineup().size();
+    		team.getTeamStatistics().size();
     		response.add(team);
 		}
     	

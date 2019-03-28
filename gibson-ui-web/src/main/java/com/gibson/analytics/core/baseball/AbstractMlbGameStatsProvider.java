@@ -49,7 +49,7 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 		try {
 			stat = createStatistics(game, repository.findByApiId(game.getId()));			
 		} catch (Exception e) {
-			log.error("Stats provider failed on "+game.getId() + " : "+ e.getMessage());;
+			log.error("Stats provider failed on "+ game.getId(), e);
 		}
 		
 		return stat;
@@ -83,6 +83,15 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	@Override
 	public boolean providesFor(String league) {
 		return SupportedLeagues.MLB.name().equals(league);
+	}
+	
+	/**
+	 * 
+	 * @param value
+	 * @return
+	 */
+	public String asFormattedString(double value) {
+		return Double.toString((Math.floor(value * 100) / 100));
 	}
 
 

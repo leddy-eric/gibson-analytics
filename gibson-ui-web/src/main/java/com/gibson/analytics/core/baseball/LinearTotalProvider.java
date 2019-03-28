@@ -18,10 +18,7 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
-		BigDecimal homeFactor = home.getPitcher().getFactor();
-		BigDecimal awayFactor = away.getPitcher().getFactor();
-
-		return new GameStatistic("Linear Total", createLinearTotal(game, homeFactor, awayFactor));
+		return new GameStatistic("Linear Total", "N/A");
 	}
 
 	private String createLinearTotal(Game game, BigDecimal homePitcherFactor, BigDecimal awayPitcherFactor) {

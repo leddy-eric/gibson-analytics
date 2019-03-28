@@ -44,6 +44,8 @@ public class BaseballAPITest {
 	public void testRoster() {
 		List<Player> roster = api.getRoster(MlbTeamLookup.CUBS);
 		
+		roster.stream().forEach(p -> System.out.println(p.getName()));
+		
 		assertNotNull(roster);
 		assertTrue(!roster.isEmpty());
 		assertTrue(roster.get(0).getTeam().equals(MlbTeamLookup.CUBS.team()));

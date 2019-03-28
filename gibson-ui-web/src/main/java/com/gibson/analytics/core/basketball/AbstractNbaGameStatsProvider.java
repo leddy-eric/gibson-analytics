@@ -25,7 +25,7 @@ public abstract class AbstractNbaGameStatsProvider implements GameStatisticsProv
 	 * @return
 	 */
 	public GameStatistic createStatistics(Game game) {
-		log.info("Adding statistics for "+game.getId());
+		log.debug("Adding statistics for "+game.getId());
 
 		Optional<NbaTeam> awayTeam = repository.findById(game.getAway().getName());
 		Optional<NbaTeam> homeTeam = repository.findById(game.getHome().getName());

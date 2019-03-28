@@ -1,8 +1,15 @@
 package com.gibson.analytics.core.baseball;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.gibson.analytics.core.baseball.stats.LeagueAverages;
+import com.gibson.analytics.core.baseball.stats.Pitches;
+import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.data.PlayerStatistic;
 import com.gibson.analytics.init.CsvPitcherConstants;
 
 
@@ -12,20 +19,17 @@ import com.gibson.analytics.init.CsvPitcherConstants;
  * @author leddy.eric
  *
  */
-public class MlbPitcher {
+public class MlbPitcher implements PitchingStatistics {
 	
-	private BigDecimal onBasePercentage = BigDecimal.valueOf(.33);
-	private BigDecimal slugging = BigDecimal.valueOf(.45);
-	private BigDecimal groundBalls = BigDecimal.valueOf(.4);
-	private BigDecimal rank = BigDecimal.valueOf(.5);
-	private BigDecimal factor = BigDecimal.valueOf(1);
-	private MlbPlayer pitcher;
+	private Player player;
+	private Map<String, BigDecimal> statistics = new HashMap<>();
 	
 	/**
-	 * Create an MLB pitcher wrapper based on the defaults.
+	 * Convenience constructor for a league average pitcher.
+	 * 
 	 */
 	public MlbPitcher() {
-		// Use defaults
+		this(new Player());
 	}
 	
 	/**
@@ -33,106 +37,76 @@ public class MlbPitcher {
 	 *  
 	 * @param p
 	 */
-	public MlbPitcher(MlbPlayer p) {
-		onBasePercentage = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_OBP_AGAINST, .33);
-		slugging = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .45);
-		groundBalls = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_PARKNORM_SLG_AGAINST, .4);
-		rank = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_RANK, .5);
-		factor = p.getStatisticOrDefault(CsvPitcherConstants.COLUMN_FACTOR, 1);
-		this.setPitcher(p);
-	}
-	
-	/**
-	 * Create a MlbPitcher using the Player provided.
-	 * 
-	 * @param p
-	 */
-	protected MlbPitcher(Player p) {
-		this(new MlbPlayer(p, -1));
-	}
-	
-	/**
-	 * @return the onBasePercentage
-	 */
-	public BigDecimal getOnBasePercentage() {
-		return onBasePercentage;
-	}
-	
-	/**
-	 * @param onBasePercentage the onBasePercentage to set
-	 */
-	public void setOnBasePercentage(BigDecimal onBasePercentage) {
-		this.onBasePercentage = onBasePercentage;
-	}
-	
-	/**
-	 * @return the slugging
-	 */
-	public BigDecimal getSlugging() {
-		return slugging;
-	}
-	
-	/**
-	 * @param slugging the slugging to set
-	 */
-	public void setSlugging(BigDecimal slugging) {
-		this.slugging = slugging;
-	}
-	
-	/**
-	 * @return the groundBalls
-	 */
-	public BigDecimal getGroundBalls() {
-		return groundBalls;
-	}
-	
-	/**
-	 * @param groundBalls the groundBalls to set
-	 */
-	public void setGroundBalls(BigDecimal groundBalls) {
-		this.groundBalls = groundBalls;
-	}
+	public MlbPitcher(Player player) {
+		this.setPlayer(player);
+		this.statistics = player.getStatistics()
+						   .stream()
+						   .collect(Collectors.toMap(PlayerStatistic::getName, PlayerStatistic::getValue)); 
+				
+	}	
 
-	/**
-	 * @return the rank
-	 */
-	public BigDecimal getRank() {
-		return rank;
-	}
-
-	/**
-	 * @param rank the rank to set
-	 */
-	public void setRank(BigDecimal rank) {
-		this.rank = rank;
-	}
-
-	/**
-	 * @return the factor
-	 */
+	@Deprecated
 	public BigDecimal getFactor() {
-		return factor;
+		// TODO - Figure out where factor goes.
+		return BigDecimal.ONE;
+	}
+
+	@Deprecated
+	public BigDecimal getRank() {
+		// TODO - Figure out where factor goes.
+		return BigDecimal.ONE;
+	}
+
+	@Override
+	public BigDecimal getOnBaseAverage() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_WEIGHTED_OBP, LeagueAverages.WEIGHTED_OBA);
+	}
+
+	@Override
+	public BigDecimal getProjectedInnings() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_INN_PER_START, LeagueAverages.EXPECTED_INNINGS);
+	}
+
+
+	@Override
+	public BigDecimal getStrikeoutRate() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_STRIKEOUT_RATE, LeagueAverages.STRIKE_OUT_RATE);
+	}
+
+
+	@Override
+	public BigDecimal getWalkRate() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_WALK_RATE, LeagueAverages.WALK_RATE);
+	}
+	
+	/**
+	 * 
+	 * @param statisticName
+	 * @param value
+	 * @return
+	 */
+	protected BigDecimal getStatisticOrDefault(String statisticName, double value) {
+		return statistics.getOrDefault(statisticName, BigDecimal.valueOf(value));
 	}
 
 	/**
-	 * @param factor the factor to set
+	 * @return the player
 	 */
-	public void setFactor(BigDecimal factor) {
-		this.factor = factor;
+	public Player getPlayer() {
+		return player;
 	}
 
 	/**
-	 * @return the pitcher
+	 * @param player the player to set
 	 */
-	public MlbPlayer getPitcher() {
-		return pitcher;
+	public void setPlayer(Player player) {
+		this.player = player;
 	}
 
-	/**
-	 * @param pitcher the pitcher to set
-	 */
-	public void setPitcher(MlbPlayer pitcher) {
-		this.pitcher = pitcher;
+	@Override
+	public Pitches pitches() {
+		// TODO Auto-generated method stub
+		return Pitches.RIGHT;
 	}
 
 }

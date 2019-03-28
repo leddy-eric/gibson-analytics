@@ -18,7 +18,7 @@ import com.gibson.analytics.core.baseball.repository.MlbGameDetailRepository;
 @SpringBootTest
 public class MlbApiMonitorTest {
 
-	private LocalDate date = LocalDate.of(2018, 5, 16);
+	private LocalDate date = LocalDate.of(2019, 3, 20);
 	
 	@Autowired
 	private MlbApiMonitor monitor;

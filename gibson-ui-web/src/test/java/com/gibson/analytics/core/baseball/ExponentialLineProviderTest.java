@@ -1,7 +1,6 @@
 package com.gibson.analytics.core.baseball;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,10 +16,10 @@ import com.gibson.analytics.enums.MlbTeamLookup;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class LinearTotalGameStatsProviderTest {
+public class ExponentialLineProviderTest {
 
 	@Autowired
-	public LinearTotalProvider provider;
+	public ExponentialLineProvider provider;
 	
 	@Test
 	//@Ignore
@@ -38,6 +37,6 @@ public class LinearTotalGameStatsProviderTest {
 		
 		GameStatistic stat = provider.createStatistics(g);
 		
-		assertEquals("Expected 0.10 for linear line total....", stat.getValue(), 0.10 );
+		assertEquals("Expected 0.10 for exponential line total....", 0.10, stat.getValue());
 	}
 }

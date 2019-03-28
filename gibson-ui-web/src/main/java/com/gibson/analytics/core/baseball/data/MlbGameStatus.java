@@ -1,6 +1,7 @@
 package com.gibson.analytics.core.baseball.data;
 
 public enum MlbGameStatus {
+	REFRESH,
 	// Game with no probables or lineups
 	OPEN,
 	// Game has probables

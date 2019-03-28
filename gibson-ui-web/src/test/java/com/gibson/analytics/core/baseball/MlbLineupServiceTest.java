@@ -27,8 +27,8 @@ public class MlbLineupServiceTest {
 		
 		assertNotNull(indians);
 		
-		BigDecimal teamOnBasePercentage = indians.calculateTeamOnBasePercentage();
-		System.out.println(teamOnBasePercentage);
+		BigDecimal teamOnBaseRunning = indians.calculateTeamBsR();
+		System.out.println(teamOnBaseRunning);
 		
 	}
 }

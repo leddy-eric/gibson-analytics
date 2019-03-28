@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -23,9 +21,9 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.gibson.analytics.client.BaseballAPI;
 import com.gibson.analytics.core.baseball.data.MlbGameActive;
@@ -64,9 +62,13 @@ public class MlbApiMonitor {
 	
     @Autowired
     private Job job;
+    
+    @Autowired
+    private Environment environment;
 	
 	// Used to build the first pass
 	private AtomicBoolean initializing = new AtomicBoolean(true);
+
 
 	/**
 	 * Refresh the game date for the 
@@ -225,7 +227,7 @@ public class MlbApiMonitor {
 			repository.save(oldDetail);			
 		}
 	}
-	
+
 	private boolean statusChanged(MlbGameDetail newDetail, MlbGameDetail oldDetail) {
 		return newDetail.getStatus() != oldDetail.getStatus();
 	}
@@ -243,9 +245,12 @@ public class MlbApiMonitor {
 		try {
 			JobExecution execution = jobLauncher.run(job, new JobParameters());
 			
+			int start = Integer.parseInt(environment.getProperty("mlb.refresh.window.min", "1"));
+			int end = Integer.parseInt(environment.getProperty("mlb.refresh.window.max", "3"));
+			
 			if(ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
 				log.info("Init Job Completed - Launching refresh data ");
-				this.refreshGameData(LocalDate.now().minusDays(3), LocalDate.now().plusDays(3));			
+				this.refreshGameData(LocalDate.now().minusDays(start), LocalDate.now().plusDays(end));			
 			} else {
 				log.error("Startup Initialization failed exit status was -" + execution.getExitStatus());
 			}

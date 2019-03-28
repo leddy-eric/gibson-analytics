@@ -61,6 +61,6 @@ public class MlbGameStatusService {
 	}
 
 	protected boolean lineupDataExists(Lineup lineup) {
-		return lineup.getStatus().is2xxSuccessful();
+		return lineup.getStatus().is2xxSuccessful() && lineup.isValid();
 	}
 }

@@ -11,9 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gibson.analytics.core.baseball.stats.StatisticFactory;
 import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Player;
+import com.gibson.analytics.data.Team;
 import com.gibson.analytics.repository.PlayerRepository;
+import com.gibson.analytics.repository.TeamRepository;
 
 /**
  * This is turning into a bit of a mess, the whole baseball package needs to be refactored.
@@ -27,6 +30,9 @@ public class MlbLineupService {
 
 	@Autowired
 	private PlayerRepository repository;
+	
+	@Autowired
+	private TeamRepository teamRepository;
 
 	@Autowired
 	private MlbRandomLineupGenerator lineupGenerator;
@@ -74,11 +80,19 @@ public class MlbLineupService {
 		// TODO Auto-generated method stub
 		MlbLineup active = new MlbLineup();
 		
+		Optional<Team> databaseTeam = teamRepository.findById(latest.getTeam());
+		
+		log.debug("Resolved DB team: "+ databaseTeam.isPresent());
+		
 		active.setTeam(latest.getTeam());
 		active.setLineup(latest.getLineup());
 		
 		MlbPitcher startingPitcher = findProbableStarter(team);
 		active.setStartingPitcher(startingPitcher);
+		
+		if(databaseTeam.isPresent()) {
+			active.setBullpen(StatisticFactory.bullpenFrom(databaseTeam.get(), startingPitcher.getPlayer()));	
+		}
 		
 		return active;
 	}
@@ -127,10 +141,9 @@ public class MlbLineupService {
 	 */
 	private List<MlbPlayer> resolveAll(List<Player> apiLineup) {
 		List<MlbPlayer> lineup = new ArrayList<>();
-		int order = 1;
 
 		for (Player player : apiLineup) {
-			lineup.add(new MlbPlayer(resolvePlayer(player), order++));
+			lineup.add(new MlbPlayer(resolvePlayer(player)));
 		}
 
 		return lineup;

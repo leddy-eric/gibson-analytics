@@ -27,6 +27,7 @@ public class BaseballRosterResponseExtractor implements ResponseExtractor<List<P
 			for (Map<String, Object> map : players) {
 				Player p = new Player();
 				
+				p.setId(Long.parseLong(map.get("player_id").toString()));
 				p.setName(map.get("name_display_first_last").toString());
 				String apiTeamName = map.get("team_name").toString();
 				p.setTeam(MlbTeamLookup.teamFrom(apiTeamName));
