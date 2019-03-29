@@ -11,6 +11,7 @@ import org.springframework.util.Assert;
 
 import com.gibson.analytics.core.baseball.stats.Bats;
 import com.gibson.analytics.core.baseball.stats.BattingStatistics;
+import com.gibson.analytics.core.baseball.stats.LeagueAverages;
 import com.gibson.analytics.core.baseball.stats.Pitches;
 import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
 
@@ -57,7 +58,7 @@ public final class MatchupAlgorithm {
 							 DoubleSummaryStatistics::combine);
 		
 		double statsAverage = statsVsBullpen.getAverage();
-		log.info("statsAverage :" + statsAverage);
+		log.debug("statsAverage :" + statsAverage);
 		
 		// 54.2*((statsAverage*parkFactor)-0.006)^2.2*(inningsPerStart/9)
 		double parkAdjusted = ((statsAverage * parkFactor.doubleValue()) - .006);
@@ -87,26 +88,27 @@ public final class MatchupAlgorithm {
 		BigDecimal effectiveStrikeoutRate = 
 				batter.getStrikeOutRate()
 				.multiply(pitcher.getStrikeoutRate())
-				.divide(BigDecimal.valueOf(0.223), DEFAULT_CONTEXT);
+				.divide(BigDecimal.valueOf(LeagueAverages.STRIKE_OUT_RATE), DEFAULT_CONTEXT);
 	
 		
 		// Calculate EffWalkRatevsStarter		
 		BigDecimal effectiveWalkRate = 
 				batter.getWalkRate()
 				.multiply(pitcher.getWalkRate())
-				.divide(BigDecimal.valueOf(0.085), DEFAULT_CONTEXT);
+				.divide(BigDecimal.valueOf(LeagueAverages.WALK_RATE), DEFAULT_CONTEXT);
 
 		
 		// Calculate EffwOBAvsStarter
 		BigDecimal effectiveOBA = 
 				batter.getOnBaseAverage()
 				.multiply(pitcher.getOnBaseAverage())
-				.divide(BigDecimal.valueOf(0.362), DEFAULT_CONTEXT)
+				.divide(BigDecimal.valueOf(LeagueAverages.WEIGHTED_OBA), DEFAULT_CONTEXT)
 				.multiply(matchupAdjustment);
 		
 		double totalWeightedOBA = totalWeightedOBA(effectiveWalkRate, effectiveStrikeoutRate, effectiveOBA);
 
-		log.info(String.format("[EffSORatevsStart, EffWalkRatevsStarter, EffwOBAvsStarter, totalWeightedOBA] = [%1$.8f, %2$.8f, %3$.8f, %4$.8f]", 
+		log.info(matchupAdjustment + 
+				String.format(" [EffSORatevsStart, EffWalkRatevsStarter, EffwOBAvsStarter, totalWeightedOBA] = [%1$.8f, %2$.8f, %3$.8f, %4$.8f]", 
 				effectiveStrikeoutRate.doubleValue(),
 				effectiveWalkRate.doubleValue(),
 				effectiveOBA.doubleValue(),

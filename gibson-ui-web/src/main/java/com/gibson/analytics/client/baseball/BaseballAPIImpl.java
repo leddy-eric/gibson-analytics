@@ -93,12 +93,12 @@ public class BaseballAPIImpl implements BaseballAPI {
 
 	@Override
 	public Lineup getLineup(String gameDataDirectory) {
-		log.debug("Getting lineup:"+ gameDataDirectory);
 		Lineup lineup = new Lineup();
 		
 		try {
-			ResponseEntity<Matchup> entity = restTemplate.getForEntity(buildLineupUri(gameDataDirectory), 
-					Matchup.class);
+			URI lineupUri = buildLineupUri(gameDataDirectory);
+			log.info("Getting lineup:"+ lineupUri);
+			ResponseEntity<Matchup> entity = restTemplate.getForEntity(lineupUri, Matchup.class);
 			lineup = mapToLineup(entity);
 		} catch (HttpClientErrorException e)   {
 			// Return empty if not found
@@ -127,8 +127,10 @@ public class BaseballAPIImpl implements BaseballAPI {
 	public Scoreboard getScoreboard(LocalDate date) {
 		log.debug("Getting scoreboard:"+ date.format(DateTimeFormatter.ISO_LOCAL_DATE));
 		
+		URI uri = buildScoreboardUri(date);
+		log.debug("Calling MLB: " + uri);
         Scoreboard scoreboard = 
-        		restTemplate.execute(buildScoreboardUri(date), HttpMethod.GET, null, 
+        		restTemplate.execute(uri, HttpMethod.GET, null, 
         				new BaseballScoreboardResponseExtractor());
 		
 		scoreboard.setDate(date);

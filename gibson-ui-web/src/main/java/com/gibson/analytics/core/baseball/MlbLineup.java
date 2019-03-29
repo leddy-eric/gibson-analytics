@@ -131,7 +131,7 @@ public class MlbLineup {
 	 * @return
 	 */
 	public double runsAgainst(PitchingStatistics opposingPitcher, BigDecimal parkFactor) {
-		log.info("Team: "+ this.team +" vs opposing pitcher");
+		log.debug("Team: "+ this.team +" vs opposing pitcher");
 		
 		return MatchupAlgorithm.runsVsOpossingPitching(lineup, opposingPitcher, parkFactor);
 	}

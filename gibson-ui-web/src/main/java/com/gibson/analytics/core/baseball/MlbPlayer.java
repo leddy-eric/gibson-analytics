@@ -88,7 +88,7 @@ public class MlbPlayer implements BattingStatistics {
 
 	@Override
 	public BigDecimal getOnBaseAverage() {
-		return this.getStatisticOrDefault(CsvPlayerConstants.COLUMN_WALK_RATE, LeagueAverages.WEIGHTED_OBA);
+		return this.getStatisticOrDefault(CsvPlayerConstants.COLUMN_WEIGHTED_OBA, LeagueAverages.WEIGHTED_OBA);
 	}
 
 	@Override

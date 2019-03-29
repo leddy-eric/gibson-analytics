@@ -35,7 +35,7 @@ public class BaseballAPITest {
 	@Test
 	public void getLineup() {
 		Lineup lineup = 
-				api.getLineup("/components/game/mlb/year_2017/month_04/day_19/gid_2017_04_19_balmlb_cinmlb_1");
+				api.getLineup("components/game/mlb/year_2019/month_03/day_30/gid_2019_03_30_chnmlb_texmlb_1/players.xml");
 		
 		assertNotNull(lineup);
 	}
@@ -43,8 +43,6 @@ public class BaseballAPITest {
 	@Test
 	public void testRoster() {
 		List<Player> roster = api.getRoster(MlbTeamLookup.CUBS);
-		
-		roster.stream().forEach(p -> System.out.println(p.getName()));
 		
 		assertNotNull(roster);
 		assertTrue(!roster.isEmpty());

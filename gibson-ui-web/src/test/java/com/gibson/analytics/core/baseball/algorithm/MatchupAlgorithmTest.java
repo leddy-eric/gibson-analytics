@@ -95,8 +95,8 @@ public class MatchupAlgorithmTest {
 	
 	@Test
 	public void testSpecificWeightedOBA() {
-		BattingStatistics batter =  new DefaultBattingStatistic(.22305243, .082667626, .365973176, Bats.RIGHT);
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(.127947857, .048834833, 0.385062383, 5.4, Pitches.RIGHT);
+		BattingStatistics batter =  new DefaultBattingStatistic(0.188, 0.038, 0.328, Bats.RIGHT);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4, Pitches.RIGHT);
 		
 		double weightedOBA = MatchupAlgorithm.weightedOBA(batter, pitcher);
 		
