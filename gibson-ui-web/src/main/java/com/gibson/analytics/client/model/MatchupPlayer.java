@@ -8,41 +8,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 public class MatchupPlayer {
 
 	@XmlAttribute
-	private String first;
-	@XmlAttribute
-	private String last;
+	private Long id;
 	@XmlAttribute
 	private String position;
 	@XmlAttribute(name="bat_order")
 	private Integer batting;
 	
-	/**
-	 * @return the first
-	 */
-	public String getFirst() {
-		return first;
-	}
-	
-	/**
-	 * @param first the first to set
-	 */
-	public void setFirst(String first) {
-		this.first = first;
-	}
-	
-	/**
-	 * @return the last
-	 */
-	public String getLast() {
-		return last;
-	}
-	
-	/**
-	 * @param last the last to set
-	 */
-	public void setLast(String last) {
-		this.last = last;
-	}
 	
 	/**
 	 * @return the position
@@ -70,6 +41,20 @@ public class MatchupPlayer {
 	 */
 	public void setBatting(Integer batting) {
 		this.batting = batting;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 }

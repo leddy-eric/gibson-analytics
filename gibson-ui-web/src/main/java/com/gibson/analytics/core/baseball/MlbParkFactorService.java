@@ -30,23 +30,26 @@ import com.gibson.analytics.repository.TeamStatisticRepository;
 public class MlbParkFactorService {
 	final static Logger log = LoggerFactory.getLogger(MlbParkFactorService.class);
 	
-	private final Map<String, BigDecimal> factors = new HashMap<>();  
-	
 	@Autowired
 	TeamRepository temaRepository;
 	
 	@Autowired
 	TeamStatisticRepository teamStatsRepository;
 	
-	public BigDecimal findParkFactor(String team) {
-		Optional<TeamStatistic> wOBA = teamStatsRepository.findDistinctByTeamIdAndName(team, CsvTeamConstants.COLUMN_WEIGHTED_TEAM_OBA);
+	public ParkFactor findParkFactor(String team) {
+		return findParkFactor(MlbTeamLookup.lookupFromTeamName(team)); 
+	}
+	
+	public ParkFactor findParkFactor(MlbTeamLookup team) {
+		Optional<TeamStatistic> wOBA = teamStatsRepository.findDistinctByTeamIdAndName(team.team(), CsvTeamConstants.COLUMN_WEIGHTED_TEAM_OBA);
 		
 		if(wOBA.isPresent()) {
+			TeamStatistic statistic = wOBA.get();
 			log.info("TeamStats: "+ team);
-			log.info("TeamStats: " +  wOBA.get().getName() + " : " + wOBA.get().getValue());
-			return wOBA.get().getValue();
+			log.info("TeamStats: " +  statistic.getName() + " : " + statistic.getValue());
+			return new ParkFactor(statistic.getValue(), team);
 		}
 		
-		return BigDecimal.ONE;
+		return new ParkFactor(BigDecimal.ONE, team); 
 	}
 }

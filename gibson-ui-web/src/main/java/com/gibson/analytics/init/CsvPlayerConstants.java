@@ -7,8 +7,8 @@ public interface CsvPlayerConstants {
 	public static final String COLUMN_WALK_RATE="totalBatterWalkRate";
 	public static final String COLUMN_WEIGHTED_OBA="totalBatterwOBA";
 	public static final String COLUMN_BATS="bats";
-	public static final String COLUMN_BSR="BsRperPA";
-	public static final String COLUMN_DEF="DefperInn";
+	public static final String COLUMN_BSR="BsRperGame";
+	public static final String COLUMN_DEF="DefperGame";
 	
 	
 	public static final String[] SUMMARY_HEADER = new String[] {

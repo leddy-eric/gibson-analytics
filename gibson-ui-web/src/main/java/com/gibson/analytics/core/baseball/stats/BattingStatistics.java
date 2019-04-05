@@ -31,4 +31,11 @@ public interface BattingStatistics {
 	 * @return
 	 */
 	public Bats bats();
+	
+	/**
+	 * Indicates a pitcher in the lineup.
+	 * 
+	 * @return
+	 */
+	public boolean isPitcher();
 }

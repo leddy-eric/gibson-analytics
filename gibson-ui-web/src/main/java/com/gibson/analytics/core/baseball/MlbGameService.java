@@ -66,8 +66,8 @@ public class MlbGameService {
 	}
 	
 	private MlbLineup createLineup(MlbGameRoster roster) {
-		// TODO - clean this up
 		MlbLineup lineup = new MlbLineup();
+		Team team = teamRepository.findById(roster.getTeam().team()).get();
 
 		List<MlbPlayer> batters = createLineup(roster.getLineup());
 		lineup.setLineup(batters);
@@ -78,15 +78,12 @@ public class MlbGameService {
 			Player p = starter.get().getPlayer();
 			MlbPitcher startingPitcher = new MlbPitcher(p);
 			
-			lineup.setStartingPitcher(startingPitcher);
-			
-			Team team = teamRepository.findById(roster.getTeam().team()).get();
-			
+			lineup.setStartingPitcher(startingPitcher);			
 			lineup.setBullpen(StatisticFactory.bullpenFrom(team, p));
 
 		} else {
 			lineup.setStartingPitcher(new MlbPitcher());
-			lineup.setBullpen(StatisticFactory.leagueAverageBullpen());
+			lineup.setBullpen(StatisticFactory.leagueAverageBullpen(MlbTeamLookup.lookupFromTeamName(team.getName())));
 		}
 
 		lineup.setTeam(roster.getTeam().name());
@@ -161,21 +158,24 @@ public class MlbGameService {
 						starter.setPlayer(p.get());
 						roster.setProbable(starter);		
 					}
-				}
+				} 
 			}
 			
 			roster.setLineup(activeLineup);
-		} else {
-			if(probable.isPresent()) {
-				Optional<Player> pitcher = playerRepository.findByName(probable.get());
-				if(pitcher.isPresent()) {
-					MlbGameActive active = new MlbGameActive();
-					active.setPlayer(pitcher.get());
-					roster.setProbable(active);				
-				}
-			}	
-		}
+		} 
 		
+		if(probable.isPresent()) {
+			Optional<Player> pitcher = playerRepository.findByName(probable.get());
+			if(pitcher.isPresent()) {
+				MlbGameActive active = new MlbGameActive();
+				active.setPlayer(pitcher.get());
+				
+				// Set it only if a probable wasn't found in the lineup. lineup > probable.
+				if(roster.getProbable() == null) {
+					roster.setProbable(active);		
+				}			
+			}
+		}	
 		
 		return roster;
 	}
@@ -187,11 +187,8 @@ public class MlbGameService {
 	 * @return
 	 */
 	private Optional<Player> resolvePlayer(MatchupPlayer player, String team) {
-		String name = new StringBuilder(player.getFirst())
-							.append(" ")
-							.append(player.getLast()).toString();
 		try {
-			return playerRepository.findByNameAndTeam(name, team);
+			return playerRepository.findById(player.getId());
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}

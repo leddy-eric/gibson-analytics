@@ -12,7 +12,9 @@ import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.PlayerStatistic;
 import com.gibson.analytics.data.Team;
 import com.gibson.analytics.data.TeamStatistic;
+import com.gibson.analytics.enums.MlbTeamLookup;
 import com.gibson.analytics.init.CsvPitcherConstants;
+import com.gibson.analytics.init.CsvTeamConstants;
 
 /**
  * Used to create Statistics instances.
@@ -29,15 +31,17 @@ public class StatisticFactory {
 	
 	/**
 	 * Returns a league average bullpen.
+	 * @param team 
 	 * 
 	 * @return
 	 */
-	public static PitchingStatistics leagueAverageBullpen() {
+	public static PitchingStatistics leagueAverageBullpen(MlbTeamLookup team) {
 		return new DefaultPitchingStatistic(LeagueAverages.STRIKE_OUT_RATE, 
 											LeagueAverages.WALK_RATE, 
 											LeagueAverages.WEIGHTED_OBA,
-											(9 - LeagueAverages.WEIGHTED_OBA),
-											Pitches.BULPEN);
+											(9 - LeagueAverages.EXPECTED_INNINGS),
+											Pitches.BULPEN,
+											team);
 	}
 	
 	/**
@@ -45,12 +49,13 @@ public class StatisticFactory {
 	 * 
 	 * @return
 	 */
-	public static PitchingStatistics leagueAveragePitcher() {
+	public static PitchingStatistics leagueAveragePitcher(MlbTeamLookup team) {
 		return new DefaultPitchingStatistic(LeagueAverages.STRIKE_OUT_RATE, 
 											LeagueAverages.WALK_RATE, 
 											LeagueAverages.WEIGHTED_OBA, 
 											LeagueAverages.WEIGHTED_OBA, 
-											Pitches.RIGHT);
+											Pitches.RIGHT,
+											team);
 	}
 	
 	/**
@@ -70,7 +75,8 @@ public class StatisticFactory {
 	 * @param starter
 	 * @return
 	 */
-	public static PitchingStatistics bullpenFrom(Player starter) {
+	public static PitchingStatistics pitcherFrom(Player starter) {
+		MlbTeamLookup team = MlbTeamLookup.lookupFromTeamName(starter.getTeam());
 		if(isValid(starter)) {
 			Map<String, BigDecimal> stats = 
 					starter.getStatistics()
@@ -87,11 +93,12 @@ public class StatisticFactory {
 												walkRate.doubleValue(), 
 												weightedOBA.doubleValue(), 
 												expectedInnings.doubleValue(), 
-												Pitches.valueOf(pitches));
+												Pitches.valueOf(pitches),
+												team);
 		}
 		
 		log.warn("Building a league avg starter ");
-		return leagueAveragePitcher();
+		return leagueAveragePitcher(team);
 	}
 	
 	/**
@@ -102,15 +109,16 @@ public class StatisticFactory {
 	 * @return
 	 */
 	public static PitchingStatistics bullpenFrom(Team team, Player starter) {
+		MlbTeamLookup mlbTeam = MlbTeamLookup.lookupFromTeamName(team.getName());
 		if(isValid(team) && isValid(starter)) {
 			Map<String, BigDecimal> stats = 
 					team.getTeamStatistics()
 						.stream()
 						.collect(Collectors.toMap(TeamStatistic::getName, TeamStatistic::getValue)); 
 			
-			BigDecimal soRate = stats.getOrDefault(CsvPitcherConstants.COLUMN_STRIKEOUT_RATE, LeagueAverages.BIG_DECIMAL_STRIKE_OUT_RATE);
-			BigDecimal walkRate = stats.getOrDefault(CsvPitcherConstants.COLUMN_WALK_RATE, LeagueAverages.BIG_DECIMAL_WALK_RATE);
-			BigDecimal weightedOBA = stats.getOrDefault(CsvPitcherConstants.COLUMN_WEIGHTED_OBP, LeagueAverages.BIG_DECIMAL_WEIGHTED_OBA);
+			BigDecimal soRate = stats.getOrDefault(CsvTeamConstants.COLUMN_STRIKEOUT_RATE, LeagueAverages.BIG_DECIMAL_STRIKE_OUT_RATE);
+			BigDecimal walkRate = stats.getOrDefault(CsvTeamConstants.COLUMN_WALK_RATE, LeagueAverages.BIG_DECIMAL_WALK_RATE);
+			BigDecimal weightedOBA = stats.getOrDefault(CsvTeamConstants.COLUMN_WEIGHTED_OBA, LeagueAverages.BIG_DECIMAL_WEIGHTED_OBA);
 			
 			Optional<PlayerStatistic> startersInnings = starter.getStatistics()
 															.stream()
@@ -127,12 +135,13 @@ public class StatisticFactory {
 												walkRate.doubleValue(),
 												weightedOBA.doubleValue(), 
 												expectedInnings.doubleValue(), 
-												Pitches.BULPEN);
+												Pitches.BULPEN,
+												mlbTeam);
 		}
 		
 		log.warn("Building a league avg bullpen ");
 		
-		return leagueAverageBullpen();
+		return leagueAverageBullpen(mlbTeam);
 	}
 
 	/**

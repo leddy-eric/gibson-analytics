@@ -118,10 +118,30 @@ public class MlbLineup {
 		return startingPitcher;
 	}
 	
-	public double runsAgainst(MlbLineup opponent, BigDecimal parkFactor) {
-		double total = runsAgainst(opponent.getStartingPitcher(), parkFactor) +  runsAgainst(opponent.getBullpen(), parkFactor);
+	public double runsAgainst(MlbLineup opponent, ParkFactor parkFactor) {
+		double runsAgainstStarter = runsAgainst(opponent.getStartingPitcher(), parkFactor);
+		double runsAgainstBullpen = runsAgainst(opponent.getBullpen(), parkFactor);
+		
+		log.debug(String.format("Runs:  vsStarter : %1$.8f | vsBullpen :  %2$.8f ", runsAgainstStarter, runsAgainstBullpen));
+		
+		double total = runsAgainstStarter +  runsAgainstBullpen;
 		
 		return MatchupAlgorithm.adjustedTotalRuns(total, this.calculateTeamBsR(), opponent.calculateTeamDefPerInn());
+	}
+
+	private double runsAgainst(PitchingStatistics stats, ParkFactor parkFactor) {
+		log.debug("Team: "+ this.team + " vs  Bullpen");
+		log.debug(String.format("Stats:  [SO, Walk, OBA, INN] : [%1$.8f,  %2$.8f , %3$.8f ,  %4$.8f] ", 
+					stats.getStrikeoutRate(), 
+					stats.getWalkRate(), 
+					stats.getOnBaseAverage(), 
+					stats.getProjectedInnings()));
+		
+		if(lineup.isEmpty()) {
+			return MatchupAlgorithm.runsVsOpossingPitching(stats, parkFactor);
+		}
+		
+		return MatchupAlgorithm.runsVsOpossingPitching(lineup, stats, parkFactor);
 	}
 
 	/**
@@ -130,10 +150,19 @@ public class MlbLineup {
 	 * @param opposingPitcher
 	 * @return
 	 */
-	public double runsAgainst(PitchingStatistics opposingPitcher, BigDecimal parkFactor) {
-		log.debug("Team: "+ this.team +" vs opposing pitcher");
+	public double runsAgainst(MlbPitcher stats, ParkFactor parkFactor) {
+		log.debug("Team: "+ this.team + " vs " + stats.getName());
+		log.debug(String.format("Stats:  [SO, Walk, OBA, INN] : [%1$.8f,  %2$.8f , %3$.8f ,  %4$.8f] ", 
+				stats.getStrikeoutRate(), 
+				stats.getWalkRate(), 
+				stats.getOnBaseAverage(), 
+				stats.getProjectedInnings()));
 		
-		return MatchupAlgorithm.runsVsOpossingPitching(lineup, opposingPitcher, parkFactor);
+		if(lineup.isEmpty()) {
+			return MatchupAlgorithm.runsVsOpossingPitching(stats, parkFactor);
+		}
+		
+		return MatchupAlgorithm.runsVsOpossingPitching(lineup, stats, parkFactor);
 	}
 
 
@@ -173,28 +202,5 @@ public class MlbLineup {
 	public BigDecimal calculateTeamDefPerInn() {
 		return mapReduce(CsvPlayerConstants.COLUMN_DEF, 0);
 	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public boolean isValid() {
-		boolean isValid = true;
-		
-		if(lineup.isEmpty()) {
-			isValid = true;
-		}
-		
-		if(bullpen == null) {
-			isValid = true;
-		}
-		
-		if(startingPitcher == null) {
-			isValid = true;
-		}
-		
-		return isValid;
-	}
-
 
 }

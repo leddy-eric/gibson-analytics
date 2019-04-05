@@ -3,6 +3,7 @@ package com.gibson.analytics.core.baseball;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -93,9 +94,11 @@ public class MlbPlayer implements BattingStatistics {
 
 	@Override
 	public Bats bats() {
-		// TODO Auto-generated method stub
-		return Bats.RIGHT;
+		return Bats.valueOf(this.getStatisticOrDefault(CsvPlayerConstants.COLUMN_BATS, 1));
 	}
-
+	
+	public String toString() {
+		return Optional.of(player.getName()).orElse("League Average");
+	}
 
 }

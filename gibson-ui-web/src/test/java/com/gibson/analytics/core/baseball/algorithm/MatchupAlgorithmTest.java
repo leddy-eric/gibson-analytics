@@ -10,6 +10,7 @@ import java.util.stream.DoubleStream;
 
 import org.junit.Test;
 
+import com.gibson.analytics.core.baseball.ParkFactor;
 import com.gibson.analytics.core.baseball.stats.Bats;
 import com.gibson.analytics.core.baseball.stats.BattingStatistics;
 import com.gibson.analytics.core.baseball.stats.DefaultBattingStatistic;
@@ -17,18 +18,14 @@ import com.gibson.analytics.core.baseball.stats.DefaultPitchingStatistic;
 import com.gibson.analytics.core.baseball.stats.Pitches;
 import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
 import com.gibson.analytics.core.baseball.stats.StatisticFactory;
+import com.gibson.analytics.enums.MlbTeamLookup;
 
 public class MatchupAlgorithmTest {
-
-	public BattingStatistics leagueAverageBatter = StatisticFactory.leagueAverageBatter();
-	public PitchingStatistics leagueAveragePitcher = StatisticFactory.leagueAveragePitcher();
-	public PitchingStatistics leagueAverageBullpen = StatisticFactory.leagueAveragePitcher();
-	
 	
 	@Test
 	public void testRunsVsStarter() {
 		// Starter
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(.127947857, .048834833, 0.385062383, 6, Pitches.RIGHT);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(.127947857, .048834833, 0.385062383, 6, Pitches.RIGHT, MlbTeamLookup.ROYALS);
 		
 		// Lineup
 		BattingStatistics[] batters = 
@@ -44,9 +41,10 @@ public class MatchupAlgorithmTest {
 						new DefaultBattingStatistic(.23415064, .066262526, .33737031, Bats.RIGHT)};
 		
 		List<BattingStatistics> lineup = new ArrayList<>(Arrays.asList(batters));
-
+		
+		ParkFactor factor = new ParkFactor(0.987, MlbTeamLookup.ROYALS);
 	
-		double runsVsStarter = MatchupAlgorithm.runsVsOpossingPitching(lineup, pitcher, 0.987);
+		double runsVsStarter = MatchupAlgorithm.runsVsOpossingPitching(lineup, pitcher, factor);
 		
 		assertEquals("Runs Vs Starter failure", 3.213022707, runsVsStarter , .00001);
 	}
@@ -54,7 +52,7 @@ public class MatchupAlgorithmTest {
 	@Test
 	public void testRunsVsBullpen() {
 		// Starter
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.287929572, 0.074157929, 0.361064668, 3, Pitches.BULPEN);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.287929572, 0.074157929, 0.361064668, 3, Pitches.BULPEN, MlbTeamLookup.ROYALS);
 		
 		// Lineup
 		BattingStatistics[] batters = 
@@ -71,8 +69,9 @@ public class MatchupAlgorithmTest {
 		
 		List<BattingStatistics> lineup = new ArrayList<>(Arrays.asList(batters));
 
+		ParkFactor factor = new ParkFactor(0.987, MlbTeamLookup.ROYALS);
 		
-		double runsVsBullpen = MatchupAlgorithm.runsVsOpossingPitching(lineup, pitcher, 0.987);
+		double runsVsBullpen = MatchupAlgorithm.runsVsOpossingPitching(lineup, pitcher, factor);
 		
 		assertEquals("Runs Vs Bullpen failure", 0.950547578, runsVsBullpen , .00001);
 	}
@@ -96,7 +95,7 @@ public class MatchupAlgorithmTest {
 	@Test
 	public void testSpecificWeightedOBA() {
 		BattingStatistics batter =  new DefaultBattingStatistic(0.188, 0.038, 0.328, Bats.RIGHT);
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4, Pitches.RIGHT);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4, Pitches.RIGHT, MlbTeamLookup.ROYALS);
 		
 		double weightedOBA = MatchupAlgorithm.weightedOBA(batter, pitcher);
 		
@@ -129,6 +128,7 @@ public class MatchupAlgorithmTest {
 		assertEquals("TotalWeightedOBA Failed ", 0.351978644, totalWeightedOBA, .0000001);
 	}
 	
+	// TODO fix this
 	@Test
 	public void adjustedTotalRuns() {
 		// Example BsR per game
@@ -152,8 +152,7 @@ public class MatchupAlgorithmTest {
 		
 		double totalRuns = (3.213022707 + 0.950547578);
 		
-		assertEquals("Ajusted total runs", 4.057683987, 
-				MatchupAlgorithm.adjustedTotalRuns(totalRuns , teamBaseRunningAdjustment, opponentFieldingAdjustment), .00001);
+		assertEquals("Ajusted total runs", 4.057683987, MatchupAlgorithm.adjustedTotalRuns(totalRuns , teamBaseRunningAdjustment, opponentFieldingAdjustment), .00001);
 	}
 	
 

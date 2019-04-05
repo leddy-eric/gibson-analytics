@@ -14,12 +14,18 @@ public class DefaultBattingStatistic implements BattingStatistics {
 	private final double walkRate;
 	private final double onBaseAverage;
 	private final Bats bats;
+	private final boolean isPitcher;
 	
 	public DefaultBattingStatistic(double strikeOutRate, double walkRate, double onBaseAverage, Bats bats) {
+		this(strikeOutRate, walkRate, onBaseAverage, bats, false);
+	}
+	
+	public DefaultBattingStatistic(double strikeOutRate, double walkRate, double onBaseAverage, Bats bats, boolean isPitcher) {
 		this.strikeOutRate = strikeOutRate;
 		this.walkRate = walkRate;
 		this.onBaseAverage = onBaseAverage;
 		this.bats = bats;
+		this.isPitcher = isPitcher;
 	}
 
 	@Override
@@ -40,6 +46,11 @@ public class DefaultBattingStatistic implements BattingStatistics {
 	@Override
 	public Bats bats() {
 		return bats;
+	}
+
+	@Override
+	public boolean isPitcher() {
+		return isPitcher;
 	}
 
 }

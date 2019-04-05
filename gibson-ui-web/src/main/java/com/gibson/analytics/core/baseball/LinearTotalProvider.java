@@ -1,17 +1,9 @@
 package com.gibson.analytics.core.baseball;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import org.springframework.stereotype.Component;
 
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
-import com.gibson.analytics.data.Player;
-import com.gibson.analytics.init.CsvPitcherConstants;
 
 @Component
 public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
@@ -19,16 +11,6 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
 		return new GameStatistic("Linear Total", "N/A");
-	}
-
-	private String createLinearTotal(Game game, BigDecimal homePitcherFactor, BigDecimal awayPitcherFactor) {
-		BigDecimal homefieldFactor = getHomeParkFactor(game);
-
-		BigDecimal nine = BigDecimal.valueOf(9);
-		BigDecimal gameTotal = homePitcherFactor.multiply(awayPitcherFactor)
-				.multiply(homefieldFactor).multiply(nine);
-
-		return gameTotal.setScale(2,RoundingMode.HALF_DOWN).toString();
 	}
 
 //	@Override

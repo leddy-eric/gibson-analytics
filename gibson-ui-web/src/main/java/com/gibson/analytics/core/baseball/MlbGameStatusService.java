@@ -19,33 +19,25 @@ public class MlbGameStatusService {
 	 * @return - the MlbGameStatus
 	 */
 	public MlbGameStatus statusFromApiResults(Game game, Lineup lineup) {
-		if(lineupDataExists(lineup)) {
-			return statusFromApiData(game, lineup);
-		} 
-		
-		return statusFromIncompleteData(game);
-	}
-
-
-	protected MlbGameStatus statusFromIncompleteData(Game game) {
-		if(probablesAssigned(game)) {
-			return MlbGameStatus.ESTIMATED;	
+		if(gameIsComplete(game)) {
+			return MlbGameStatus.FINAL;
+		} else if(lineupDataExists(lineup) && probablesAssigned(game)) {
+			return MlbGameStatus.RECOMMEND;
+		} else if(probablesAssigned(game)) {
+			return MlbGameStatus.ESTIMATED;
 		}
 		
 		return MlbGameStatus.OPEN;
 	}
-
-	protected MlbGameStatus statusFromApiData(Game game, Lineup lineup) {
-		if(gameIsComplete(game)) {
-			return MlbGameStatus.FINAL;
-		}
-		
-		return MlbGameStatus.RECOMMEND;
-	}
-
+	
+	/**
+	 * This means the game is complete from an estimation perspective only. 
+	 * 
+	 * @param game
+	 * @return
+	 */
 	protected boolean gameIsComplete(Game game) {
-		// TODO - When do we close the game (final scores)?
-		return false;
+		return game.getStatus().equals("Final") || game.getStatus().equals("In Progress");
 	}
 
 	protected boolean probablesAssigned(Game game) {

@@ -2,6 +2,8 @@ package com.gibson.analytics.core.baseball.stats;
 
 import java.math.BigDecimal;
 
+import com.gibson.analytics.enums.MlbTeamLookup;
+
 /**
  * A default implementation of PitchingStatistic used for league avverages and testing.
  *  
@@ -15,13 +17,15 @@ public class DefaultPitchingStatistic implements PitchingStatistics {
 	private final double onBaseAverage;
 	private final double projectedInnings;
 	private final Pitches pitches;
+	private final MlbTeamLookup team;
 	
-	public DefaultPitchingStatistic(double strikeOutRate, double walkRate, double onBaseAverage, double projectedInnings, Pitches pitches) {
+	public DefaultPitchingStatistic(double strikeOutRate, double walkRate, double onBaseAverage, double projectedInnings, Pitches pitches, MlbTeamLookup team) {
 		this.strikeOutRate = strikeOutRate;
 		this.walkRate = walkRate;
 		this.onBaseAverage = onBaseAverage;
 		this.projectedInnings =  projectedInnings;
 		this.pitches = pitches;
+		this.team = team;
 	}
 
 	@Override
@@ -47,6 +51,11 @@ public class DefaultPitchingStatistic implements PitchingStatistics {
 	@Override
 	public Pitches pitches() {
 		return pitches;
+	}
+
+	@Override
+	public MlbTeamLookup getTeam() {
+		return team;
 	}
 
 }

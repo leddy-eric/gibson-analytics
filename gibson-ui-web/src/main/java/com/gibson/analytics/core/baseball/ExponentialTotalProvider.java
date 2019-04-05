@@ -1,7 +1,5 @@
 package com.gibson.analytics.core.baseball;
 
-import java.math.BigDecimal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -16,20 +14,18 @@ public class ExponentialTotalProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
-		if(!home.isValid() || !away.isValid()) {
-			return new GameStatistic("ExTotal", "INVALID "+ game.getStatus());
-		}
-		
-		BigDecimal fieldFactor = getHomeParkFactor(game);
+		ParkFactor parkFactor = getHomeParkFactor(game);
 
-		double awayRuns = away.runsAgainst(home, fieldFactor); 
-		double homeRuns = home.runsAgainst(away, fieldFactor);
+		double awayRuns = away.runsAgainst(home, parkFactor); 
+		double homeRuns = home.runsAgainst(away, parkFactor);
 		
 		double winPercentage = MatchupAlgorithm.winPercentage(awayRuns, homeRuns);
 		
 		log.info("Total: away :"+ awayRuns + " home: "+ homeRuns + " win % "+ winPercentage);
-		double total = (homeRuns + awayRuns) * (0.96 - (.028 * winPercentage));
+		double total = (homeRuns + awayRuns) * (0.966 - (.028 * winPercentage));
+		log.info("Total:" + total);
 		total = Math.floor(total * 100) / 100;
+		log.info("Total:" + total);
 		
 		return new GameStatistic("ExTotal", Double.toString(total));
 	}

@@ -1,169 +1,99 @@
 package com.gibson.analytics.core.baseball;
 
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
 import com.gibson.analytics.core.baseball.stats.StatisticFactory;
-import com.gibson.analytics.data.GameTeam;
 import com.gibson.analytics.data.Player;
 import com.gibson.analytics.data.Team;
+import com.gibson.analytics.enums.MlbTeamLookup;
 import com.gibson.analytics.repository.PlayerRepository;
 import com.gibson.analytics.repository.TeamRepository;
 
-/**
- * This is turning into a bit of a mess, the whole baseball package needs to be refactored.
- * 
- * @author leddy.eric
- *
- */
-@Service
+@Component
 public class MlbLineupService {
-	final static Logger log = LoggerFactory.getLogger(MlbLineupService.class);
-
 	@Autowired
-	private PlayerRepository repository;
+	PlayerRepository playerRepository;
 	
 	@Autowired
-	private TeamRepository teamRepository;
-
-	@Autowired
-	private MlbRandomLineupGenerator lineupGenerator;
-
-	private ConcurrentHashMap<String, MlbLineup> active = new ConcurrentHashMap<>();
-
-	/**
-	 * Constructs MLBLineup and caches the results into the active line up cache.
-	 * 
-	 * @param gametime
-	 * @param team
-	 * @param apiLineup
-	 */
-	public MlbLineup cacheLatestApiLineup(ZonedDateTime gametime, GameTeam team, List<Player> apiLineup) {
-		MlbLineup lineup = resolveLineup(gametime, team, apiLineup);
-
-		return active.merge(team.getName(), lineup, (oldLineup, newLineup) -> {
-			if(oldLineup.getGametime().isBefore(newLineup.getGametime())) {
-				log.debug("Update lineup: " + newLineup.getTeam());
-				return newLineup;
-			} 
-
-			return oldLineup;
-		});
-
-	}
-
-	public MlbLineup findActive(GameTeam team) {
-		if(active.containsKey(team.getName())) {
-			MlbLineup latest = active.get(team.getName());
-			
-			return constructActiveLineup(latest, team);
-		}
-
-		return constructRandomLineup(team);
-	}
-
+	TeamRepository teamRepository;
+	
 	/**
 	 * 
-	 * @param latest
+	 * @param starterId
 	 * @param team
+	 * @param batterIds
 	 * @return
 	 */
-	private MlbLineup constructActiveLineup(MlbLineup latest, GameTeam team) {
-		// TODO Auto-generated method stub
-		MlbLineup active = new MlbLineup();
-		
-		Optional<Team> databaseTeam = teamRepository.findById(latest.getTeam());
-		
-		log.debug("Resolved DB team: "+ databaseTeam.isPresent());
-		
-		active.setTeam(latest.getTeam());
-		active.setLineup(latest.getLineup());
-		
-		MlbPitcher startingPitcher = findProbableStarter(team);
-		active.setStartingPitcher(startingPitcher);
-		
-		if(databaseTeam.isPresent()) {
-			active.setBullpen(StatisticFactory.bullpenFrom(databaseTeam.get(), startingPitcher.getPlayer()));	
-		}
-		
-		return active;
-	}
-
-	private MlbPitcher findProbableStarter(GameTeam team) {
-		if(team.getMetadata().containsKey("starter")) {
-			String starter = team.getMetadata().get("starter");
-			Optional<Player> probable = repository.findByName(starter);
-			
-			if(probable.isPresent()) {
-				return new MlbPitcher(probable.get());
-			}
-		}
-		
-		return new MlbPitcher();
-	}
-
-	private MlbLineup constructRandomLineup(GameTeam team) {
-		log.debug("Generate Random lineup: " + team.getName());
-		List<Player> randomLineup = lineupGenerator.getRandomLineup(team);
-		return resolveLineup(ZonedDateTime.now(), team, randomLineup);
-	}
-
-	/**
-	 * Construct the MlbLineup object for the given team and api lineup.
-	 * @param gametime 
-	 * 
-	 * @param team
-	 * @param apiLineup
-	 * @return
-	 */
-	private MlbLineup resolveLineup(ZonedDateTime gametime, GameTeam team, List<Player> apiLineup) {
+	public MlbLineup constructLineup(String starterId, MlbTeamLookup team, String... batterIds) {
 		MlbLineup lineup = new MlbLineup();
-
-		lineup.setLineup(resolveAll(apiLineup));
-		lineup.setTeam(team.getName());
-		lineup.setGametime(gametime);
-
+		lineup.setTeam(team.team());
+		MlbPitcher mlbPitcher = constructStarter(starterId);
+		lineup.setStartingPitcher(constructStarter(starterId));
+		lineup.setBullpen(constructBullpen(mlbPitcher, team));
+		lineup.setLineup(constructLineup(batterIds));
+		
 		return lineup;
+	}
+
+	private PitchingStatistics constructBullpen(MlbPitcher mlbPitcher, MlbTeamLookup lookup) {
+		Team team = teamRepository.findById(lookup.team()).get();
+		
+		return StatisticFactory.bullpenFrom(team, mlbPitcher.getPlayer());
 	}
 
 	/**
 	 * 
-	 * @param apiLineup
+	 * @param batters
 	 * @return
 	 */
-	private List<MlbPlayer> resolveAll(List<Player> apiLineup) {
-		List<MlbPlayer> lineup = new ArrayList<>();
-
-		for (Player player : apiLineup) {
-			lineup.add(new MlbPlayer(resolvePlayer(player)));
-		}
-
-		return lineup;
+	private List<MlbPlayer> constructLineup(String[] batters) {
+		return constructLineup(Arrays.asList(batters));
 	}
 
-
 	/**
-	 * Return the DB player if one exists, otherwise just use the API player.
 	 * 
-	 * @param player
+	 * @param batters
 	 * @return
 	 */
-	private Player resolvePlayer(Player player) {
-		try {
-			return repository.findByName(player.getName()).orElse(player);
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
+	private List<MlbPlayer> constructLineup(List<String> batters) {
+		return batters
+				.stream()
+				.map(b -> Long.parseLong(b))
+				.map(id -> constructPlayer(id))
+				.map(p -> new MlbPlayer(p))
+				.collect(Collectors.toList());
+	}
 
-		return player;
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	private Player constructPlayer(long id) {
+		return playerRepository.findById(id).orElse(new Player());
+	}
+
+	/**
+	 * 
+	 * @param playerId
+	 * @return
+	 */
+	private MlbPitcher constructStarter(String playerId) {
+		Optional<Player> starter = playerRepository.findById(Long.parseLong(playerId));
+		
+		if(starter.isPresent()) {
+			return new MlbPitcher(starter.get());
+		}
+		
+		// Returns league average starter
+		return new MlbPitcher();
 	}
 
 }

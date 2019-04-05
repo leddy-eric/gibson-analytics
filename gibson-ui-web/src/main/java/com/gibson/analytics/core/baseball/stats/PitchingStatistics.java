@@ -2,6 +2,8 @@ package com.gibson.analytics.core.baseball.stats;
 
 import java.math.BigDecimal;
 
+import com.gibson.analytics.enums.MlbTeamLookup;
+
 public interface PitchingStatistics {
 
 	/**
@@ -38,4 +40,10 @@ public interface PitchingStatistics {
 	 * @return
 	 */
 	public Pitches pitches();
+	
+	/**
+	 * Return the pitchers team.
+	 * @return
+	 */
+	public MlbTeamLookup getTeam();
 }

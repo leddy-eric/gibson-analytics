@@ -16,9 +16,9 @@ public enum Bats {
 	
 	public static Bats valueOf(BigDecimal value) {
 		if(BigDecimal.ZERO.compareTo(value) > 0) {
-			return RIGHT;
+			return LEFT;
 		} else if(BigDecimal.ZERO.compareTo(value) < 0) {
-			return LEFT;	
+			return RIGHT;	
 		}
 		
 		return Bats.SWITCH;

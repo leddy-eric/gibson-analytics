@@ -8,7 +8,7 @@ public enum Pitches {
 	BULPEN;
 	
 	public static Pitches valueOf(BigDecimal value) {
-		if(BigDecimal.ZERO.compareTo(value) > 0) {
+		if(BigDecimal.ZERO.compareTo(value) < 0) {
 			return RIGHT;
 		}
 		

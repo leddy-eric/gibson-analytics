@@ -2,18 +2,23 @@ package com.gibson.analytics.core.baseball.algorithm;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
+import com.gibson.analytics.core.baseball.ParkFactor;
 import com.gibson.analytics.core.baseball.stats.Bats;
 import com.gibson.analytics.core.baseball.stats.BattingStatistics;
 import com.gibson.analytics.core.baseball.stats.LeagueAverages;
 import com.gibson.analytics.core.baseball.stats.Pitches;
 import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
+import com.gibson.analytics.core.baseball.stats.StatisticFactory;
 
 /***
  * 
@@ -26,18 +31,6 @@ public final class MatchupAlgorithm {
 	
 	private static MathContext DEFAULT_CONTEXT = MathContext.DECIMAL32;
 	
-	/**
-	 * Convenience method for runs vs opposing pitcher
-	 * 
-	 * @param batters
-	 * @param pitcher
-	 * @param parkFactor
-	 * 
-	 * @return 54.2*((statsAverage*parkFactor)-0.006)^2.2*(inningsPerStart/9)
-	 */
-	public static double runsVsOpossingPitching(List<BattingStatistics> batters, PitchingStatistics pitcher, double parkFactor) {
-		return runsVsOpossingPitching(batters, pitcher, BigDecimal.valueOf(parkFactor));
-	}
 	
 	/**
 	 * Calculate runs vs opposing pitcher.
@@ -46,34 +39,83 @@ public final class MatchupAlgorithm {
 	 * @param pitcher
 	 * @param parkFactor
 	 * 
-	 * @return 54.2*((statsAverage*parkFactor)-0.006)^2.2*(inningsPerStart/9)
+	 * @return leagueFactor * ((statsAverage*parkFactor)-0.006)^2.2 * (inningsPerStart/9)
 	 */
-	public static double runsVsOpossingPitching(List<? extends BattingStatistics> batters, PitchingStatistics pitcher, BigDecimal parkFactor) {
-		DoubleSummaryStatistics statsVsBullpen = 
-				batters
-					.stream()
-					.mapToDouble(p -> weightedOBA(p, pitcher))
-					.collect(DoubleSummaryStatistics::new,
-							 DoubleSummaryStatistics::accept,
-							 DoubleSummaryStatistics::combine);
+	public static double runsVsOpossingPitching(List<? extends BattingStatistics> batters, PitchingStatistics pitcher, ParkFactor parkFactor) {
+		log.debug("Player Name : [MatchupAdjustment, EffSORatevsStart, EffWalkRatevsStarter, EffwOBAvsStarter, totalWeightedOBA]");		
+		double statsAverage = weightedOBA(batters, pitcher, parkFactor);
 		
-		double statsAverage = statsVsBullpen.getAverage();
-		log.debug("statsAverage :" + statsAverage);
+		double parkAdjusted = 0;
+		boolean homeAdvantage = homeAdvantage(pitcher, parkFactor);
 		
-		// 54.2*((statsAverage*parkFactor)-0.006)^2.2*(inningsPerStart/9)
-		double parkAdjusted = ((statsAverage * parkFactor.doubleValue()) - .006);
+		// Batting at home
+		if(homeAdvantage) {
+			parkAdjusted = ((statsAverage * parkFactor.getFactor().doubleValue()) + .006);
+		} else {
+			parkAdjusted = ((statsAverage * parkFactor.getFactor().doubleValue()) - .006);
+		}
+
+		double leagueFactor = 0;
 		
-		double a = 54.2;
+		// league adjustment
+		if(parkFactor.getTeam().isAmericanLeague()) {
+			leagueFactor = 54.5;
+		} else {
+			leagueFactor = 50.5;
+		}
+		
+		
+		log.debug("totalWeightedOBA :" + statsAverage + " leagueFactor: " + leagueFactor + " homeAdvantage: "+homeAdvantage);
+		
 		double b = Math.pow(parkAdjusted, 2.2);
 		double c = pitcher
 					.getProjectedInnings()
 					.divide(BigDecimal.valueOf(9), DEFAULT_CONTEXT)
 					.doubleValue();
 		
-		return a * b * c;
+		if(homeAdvantage) {
+			log.debug(String.format(" leagueFactor * ((statsAverage*parkFactor) + 0.006)^2.2 * (inningsPerStart/9) = (%1$.8f * %2$.8f * %3$.8f)", leagueFactor, b, c));			
+		} else {
+			log.debug(String.format(" leagueFactor * ((statsAverage*parkFactor) - 0.006)^2.2 * (inningsPerStart/9) = (%1$.8f * %2$.8f * %3$.8f)", leagueFactor, b, c));
+		}
+
+		
+		return leagueFactor * b * c;
 	}
 
-	
+	private static double weightedOBA(List<? extends BattingStatistics> batters, PitchingStatistics pitcher,
+			ParkFactor parkFactor) {
+		if(!parkFactor.getTeam().isAmericanLeague()) {
+			return	batters
+						.stream()
+						.mapToDouble(p -> weightedOBA(p, pitcher))
+						.collect(DoubleSummaryStatistics::new,
+								 DoubleSummaryStatistics::accept,
+								 DoubleSummaryStatistics::combine).getAverage();
+		}
+		
+		return batters
+				.stream()
+				.filter(p -> !p.isPitcher())
+				.mapToDouble(p -> weightedOBA(p, pitcher))
+				.collect(DoubleSummaryStatistics::new,
+						 DoubleSummaryStatistics::accept,
+						 DoubleSummaryStatistics::combine).getAverage();
+	}
+
+	/**
+	 * Checks if the pitcher is playing at home or away.
+	 * 
+	 * @param pitcher
+	 * @param parkFactor
+	 * 
+	 * @return true - Pitcher is the away pitcher.
+	 */
+	private static boolean homeAdvantage(PitchingStatistics pitcher, ParkFactor parkFactor) {
+		return parkFactor.getTeam() != pitcher.getTeam();
+	}
+
+
 	/**
 	 * Calculates the weighted OBA for this particular matchup.
 	 * 
@@ -107,8 +149,9 @@ public final class MatchupAlgorithm {
 		
 		double totalWeightedOBA = totalWeightedOBA(effectiveWalkRate, effectiveStrikeoutRate, effectiveOBA);
 
-		log.info(matchupAdjustment + 
-				String.format(" [EffSORatevsStart, EffWalkRatevsStarter, EffwOBAvsStarter, totalWeightedOBA] = [%1$.8f, %2$.8f, %3$.8f, %4$.8f]", 
+		log.debug(batter + " : " + 
+				String.format("[%1$.8f, %2$.8f, %3$.8f, %4$.8f, %5$.8f]", 
+				matchupAdjustment.doubleValue(),
 				effectiveStrikeoutRate.doubleValue(),
 				effectiveWalkRate.doubleValue(),
 				effectiveOBA.doubleValue(),
@@ -231,7 +274,10 @@ public final class MatchupAlgorithm {
 	 * @return teamRunTotal + teamBaseRunningAdjustment - opponentFieldingAdjustment * 9
 	 */
 	public static double adjustedTotalRuns(double teamRunTotal, double teamBaseRunningAdjustment, double opponentFieldingAdjustment) {
-		return teamRunTotal +  teamBaseRunningAdjustment - opponentFieldingAdjustment * 9;
+		log.debug(String.format("teamRunTotal + teamBaseRunningAdjustment - opponentFieldingAdjustment = (%1$.8f + %2$.8f - %3$.8f )",
+				teamRunTotal, teamBaseRunningAdjustment, opponentFieldingAdjustment));
+
+		return teamRunTotal +  teamBaseRunningAdjustment - opponentFieldingAdjustment;
 	}
 
 	/**
@@ -244,5 +290,20 @@ public final class MatchupAlgorithm {
 	 */
 	public static double adjustedTotalRuns(double total, BigDecimal teamBsR, BigDecimal opponentDefensePerInning) {
 		return adjustedTotalRuns(total, teamBsR.doubleValue(), opponentDefensePerInning.doubleValue());
+	}
+
+	/**
+	 * 
+	 * @param stats
+	 * @param parkFactor
+	 * @return
+	 */
+	public static double runsVsOpossingPitching(PitchingStatistics stats, ParkFactor parkFactor) {
+		log.debug("Using league average lineup");
+		List<BattingStatistics> lineup = IntStream.range(0, 10)
+					.mapToObj(i -> StatisticFactory.leagueAverageBatter())
+					.collect(Collectors.toList());
+
+		return runsVsOpossingPitching(lineup,  stats, parkFactor);
 	}
 }

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.gibson.analytics.core.GameStatisticsProvider;
 import com.gibson.analytics.core.SupportedLeagues;
 import com.gibson.analytics.core.baseball.data.MlbGameDetail;
+import com.gibson.analytics.core.baseball.data.MlbGameStatus;
 import com.gibson.analytics.core.baseball.repository.MlbGameDetailRepository;
 import com.gibson.analytics.data.Game;
 import com.gibson.analytics.data.GameStatistic;
@@ -35,7 +36,7 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	 * @param game
 	 * @return
 	 */
-	public BigDecimal getHomeParkFactor(Game game) {
+	public ParkFactor getHomeParkFactor(Game game) {
 		return parkService.findParkFactor(game.getHome().getName());
 	}
 
@@ -64,8 +65,13 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	 */
 	public GameStatistic createStatistics(Game game, Optional<MlbGameDetail> details) {
 		if(details.isPresent()) {
-			MlbGame mlbGame = gameService.getGame(details.get());
-			return createStatistics(game, mlbGame.getHome(), mlbGame.getAway());			
+			MlbGameDetail gameDetail = details.get();
+			
+			if(gameDetail.getStatus() != MlbGameStatus.OPEN) {
+				MlbGame mlbGame = gameService.getGame(details.get());
+				return createStatistics(game, mlbGame.getHome(), mlbGame.getAway());				
+			}
+			
 		}
 		
 		return new GameStatistic("N/A", "N/A");

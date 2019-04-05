@@ -129,14 +129,22 @@ public class MlbApiMonitor {
 	 */
 	private void refreshGameData(Game g, Lineup lineup) {
 		MlbGameDetail latest = gameService.createGameDetails(g, lineup);
-		
+
 		Optional<MlbGameDetail> existing = repository.findByApiId(latest.getApiId());
-		
+
 		if(existing.isPresent()) {
 			refreshGameDetail(latest, existing.get());			
 		} else {
+			// Do not save garbage lineups
+			if(MlbGameStatus.FINAL == latest.getStatus()) {
+				latest.getHome().setLineup(null);
+				latest.getAway().setLineup(null);
+			}
+			
 			saveGameDetail(latest);
-		}
+		} 
+
+
 	}
 
 
@@ -245,10 +253,11 @@ public class MlbApiMonitor {
 		try {
 			JobExecution execution = jobLauncher.run(job, new JobParameters());
 			
+			boolean initOnStartup = Boolean.parseBoolean(environment.getProperty("mlb.refresh.on.init", "true"));
 			int start = Integer.parseInt(environment.getProperty("mlb.refresh.window.min", "1"));
 			int end = Integer.parseInt(environment.getProperty("mlb.refresh.window.max", "3"));
 			
-			if(ExitStatus.COMPLETED.equals(execution.getExitStatus())) {
+			if(ExitStatus.COMPLETED.equals(execution.getExitStatus()) && initOnStartup) {
 				log.info("Init Job Completed - Launching refresh data ");
 				this.refreshGameData(LocalDate.now().minusDays(start), LocalDate.now().plusDays(end));			
 			} else {
