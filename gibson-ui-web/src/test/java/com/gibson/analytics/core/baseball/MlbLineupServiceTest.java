@@ -111,8 +111,8 @@ public class MlbLineupServiceTest {
 		GameStatistic line = lineProvider.createStatistics(g, home, away);
 		GameStatistic total = totalProvider.createStatistics(g, home, away);
 		
-		assertEquals("Expected 8.18 for exponential total....", 8.18, total.getValue());
-		assertEquals("Expected -220 for exponential line total....", -220, line.getValue());
+		assertEquals("Expected 8.18 for exponential total....", 10.12, total.getValue());
+		assertEquals("Expected -220 for exponential line total....", 140.76, line.getValue());
 	}
 	
 	
