@@ -19,7 +19,7 @@ public class ExponentialTotalProvider extends AbstractMlbGameStatsProvider {
 		double awayRuns = away.runsAgainst(home, parkFactor); 
 		double homeRuns = home.runsAgainst(away, parkFactor);
 		
-		double winPercentage = MatchupAlgorithm.winPercentage(awayRuns, homeRuns);
+		double winPercentage = MatchupAlgorithm.homeWinPercentage(awayRuns, homeRuns);
 		
 		log.info("Total: away :"+ awayRuns + " home: "+ homeRuns + " win % "+ winPercentage);
 		double total = (homeRuns + awayRuns) * (0.966 - (.028 * winPercentage));

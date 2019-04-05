@@ -85,7 +85,7 @@ public final class MatchupAlgorithm {
 
 	private static double weightedOBA(List<? extends BattingStatistics> batters, PitchingStatistics pitcher,
 			ParkFactor parkFactor) {
-		if(!parkFactor.getTeam().isAmericanLeague()) {
+		if(parkFactor.getTeam().isAmericanLeague()) {
 			return	batters
 						.stream()
 						.mapToDouble(p -> weightedOBA(p, pitcher))
@@ -242,6 +242,20 @@ public final class MatchupAlgorithm {
 		double max = Math.max(adjustedTotalRunsAway, adjustedTotalRunsHome);
 		
 		return Math.pow(max, expLine) / (Math.pow(adjustedTotalRunsAway, expLine) + Math.pow(adjustedTotalRunsHome, expLine));
+		
+	}
+	
+	/**
+	 * Calculate the win percentage.
+	 * 
+	 * @param adjustedTotalRunsAway
+	 * @param adjustedTotalRunsHome
+	 * @return
+	 */
+	public static double homeWinPercentage(double adjustedTotalRunsAway, double adjustedTotalRunsHome) {
+		double expLine = exponentialLine(adjustedTotalRunsAway, adjustedTotalRunsHome);
+		
+		return Math.pow(adjustedTotalRunsHome, expLine) / (Math.pow(adjustedTotalRunsAway, expLine) + Math.pow(adjustedTotalRunsHome, expLine));
 		
 	}
 

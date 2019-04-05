@@ -59,6 +59,7 @@ public class MlbPlayer implements BattingStatistics {
 	 * 
 	 * @return
 	 */
+	@Override
 	public boolean isPitcher() {
 		return POSITION_PITCHER.equals(player.getPosition());
 	}

@@ -71,5 +71,49 @@ public class MlbLineupServiceTest {
 		assertEquals("Expected -220 for exponential line total....", -220, line.getValue());
 	}
 	
+	@Test
+	@Transactional
+	public void testLineupNl() {
+		MlbLineup away = lienupService.constructLineup("628317", 
+									  MlbTeamLookup.DODGERS, 
+									  "571771", 
+									  "608369", 
+									  "457759",
+									  "641355",
+									  "572041",
+									  "571970",
+									  "621035",
+									  "431145",
+									  "628317");
+		
+		MlbLineup home = lienupService.constructLineup("542881", 
+				  MlbTeamLookup.ROCKIES, 
+				  "453568", 
+				  "621311", 
+				  "571448",
+				  "596115",
+				  "641857",
+				  "435622",
+				  "547172",
+				  "641658",
+				  "542881");
+		
+		Game g = new Game();
+		GameTeam homeTeam = new GameTeam();
+		homeTeam.setName(MlbTeamLookup.ROCKIES.team());
+		g.setHome(homeTeam);
+		GameTeam awayTeam = new GameTeam();
+		awayTeam.setName(MlbTeamLookup.DODGERS.team());
+		g.setAway(awayTeam);
+		
+		g.setId("2019/04/05/ladmlb-colmlb-1");
+		
+		GameStatistic line = lineProvider.createStatistics(g, home, away);
+		GameStatistic total = totalProvider.createStatistics(g, home, away);
+		
+		assertEquals("Expected 8.18 for exponential total....", 8.18, total.getValue());
+		assertEquals("Expected -220 for exponential line total....", -220, line.getValue());
+	}
+	
 	
 }
