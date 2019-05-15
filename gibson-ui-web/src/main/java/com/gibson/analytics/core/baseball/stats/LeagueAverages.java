@@ -10,9 +10,9 @@ import java.math.BigDecimal;
  */
 public interface LeagueAverages {
 	
-	public static final double STRIKE_OUT_RATE = .216;
-	public static final double WALK_RATE = .082;
-	public static final double WEIGHTED_OBA = .365;
+	public static final double STRIKE_OUT_RATE = .227;
+	public static final double WALK_RATE = .098;
+	public static final double WEIGHTED_OBA = .378;
 	public static final double EXPECTED_INNINGS = 5.4;
 	
 	// Big Decimals
