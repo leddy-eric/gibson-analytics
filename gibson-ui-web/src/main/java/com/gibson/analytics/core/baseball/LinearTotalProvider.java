@@ -1,5 +1,8 @@
 package com.gibson.analytics.core.baseball;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.springframework.stereotype.Component;
 
 import com.gibson.analytics.data.Game;
@@ -10,7 +13,19 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
-		return new GameStatistic("Linear Total", "N/A");
+		ParkFactor parkFactor = getHomeLinearParkFactor(game);
+		BigDecimal homePitcherFactor = home.getStartingPitcher().getFactor();
+		BigDecimal awayPitcherFactor = away.getStartingPitcher().getFactor();
+		BigDecimal innings = BigDecimal.valueOf(9);
+		
+		// (homePitcherFactor x awayPitcherFactor x homeTeam.lineLearnedPF x 9)
+		BigDecimal total = 
+				homePitcherFactor
+					.multiply(awayPitcherFactor)
+					.multiply(parkFactor.getFactor())
+					.multiply(innings);
+		
+		return new GameStatistic("Linear Total", total.setScale(2,RoundingMode.HALF_DOWN).toString());
 	}
 
 //	@Override
@@ -49,6 +64,7 @@ public class LinearTotalProvider extends AbstractMlbGameStatsProvider {
 //
 //		return new GameStatistic("Linear Total", outputTotal);
 //	}
+//	
 //
 //	private Optional<Player> findByPosition(Map<Player, Map<String, BigDecimal>> roster, String position) {
 //		Set<Player> players = roster.keySet();

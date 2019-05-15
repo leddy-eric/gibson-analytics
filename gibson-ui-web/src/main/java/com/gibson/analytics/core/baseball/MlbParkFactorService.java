@@ -37,14 +37,18 @@ public class MlbParkFactorService {
 	TeamStatisticRepository teamStatsRepository;
 	
 	public ParkFactor findParkFactor(String team) {
-		return findParkFactor(MlbTeamLookup.lookupFromTeamName(team)); 
+		return findParkFactor(MlbTeamLookup.lookupFromTeamName(team), CsvTeamConstants.COLUMN_WEIGHTED_TEAM_OBA); 
 	}
 	
-	public ParkFactor findParkFactor(MlbTeamLookup team) {
-		Optional<TeamStatistic> wOBA = teamStatsRepository.findDistinctByTeamIdAndName(team.team(), CsvTeamConstants.COLUMN_WEIGHTED_TEAM_OBA);
+	public ParkFactor findLinearParkFactor(String team) {
+		return findParkFactor(MlbTeamLookup.lookupFromTeamName(team), CsvTeamConstants.COLUMN_LINE_LEARNED_PF); 
+	}
+	
+	public ParkFactor findParkFactor(MlbTeamLookup team, String column) {
+		Optional<TeamStatistic> factor = teamStatsRepository.findDistinctByTeamIdAndName(team.team(), column);
 		
-		if(wOBA.isPresent()) {
-			TeamStatistic statistic = wOBA.get();
+		if(factor.isPresent()) {
+			TeamStatistic statistic = factor.get();
 			log.info("TeamStats: "+ team);
 			log.info("TeamStats: " +  statistic.getName() + " : " + statistic.getValue());
 			return new ParkFactor(statistic.getValue(), team);

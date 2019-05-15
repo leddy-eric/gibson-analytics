@@ -6,6 +6,7 @@ public interface CsvTeamConstants {
 	public static final String COLUMN_WALK_RATE="bullpenWalkRate";
 	public static final String COLUMN_WEIGHTED_OBA="bullpenwOBA";
 	public static final String COLUMN_WEIGHTED_TEAM_OBA="wOBA";
+	public static final String COLUMN_LINE_LEARNED_PF="lineLearnedPF";
 	
 	
 	public static final String[] SUMMARY_HEADER = {
@@ -14,6 +15,6 @@ public interface CsvTeamConstants {
 			COLUMN_WALK_RATE,
 			COLUMN_WEIGHTED_OBA,
 			COLUMN_WEIGHTED_TEAM_OBA,
-			"lineLearnedPF"
+			COLUMN_LINE_LEARNED_PF
 	};
 }

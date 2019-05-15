@@ -76,14 +76,13 @@ public class MlbGameService {
 		
 		if(starter.isPresent()) {
 			Player p = starter.get().getPlayer();
-			MlbPitcher startingPitcher = new MlbPitcher(p);
 			
-			lineup.setStartingPitcher(startingPitcher);			
+			lineup.setStartingPitcher(new MlbPitcher(p));			
 			lineup.setBullpen(StatisticFactory.bullpenFrom(team, p));
 
 		} else {
 			lineup.setStartingPitcher(new MlbPitcher());
-			lineup.setBullpen(StatisticFactory.leagueAverageBullpen(MlbTeamLookup.lookupFromTeamName(team.getName())));
+			lineup.setBullpen(StatisticFactory.leagueAverageBullpen(roster.getTeam()));
 		}
 
 		lineup.setTeam(roster.getTeam().name());

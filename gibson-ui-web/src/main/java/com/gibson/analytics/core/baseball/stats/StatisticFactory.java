@@ -40,6 +40,8 @@ public class StatisticFactory {
 											LeagueAverages.WALK_RATE, 
 											LeagueAverages.WEIGHTED_OBA,
 											(9 - LeagueAverages.EXPECTED_INNINGS),
+											LeagueAverages.FACTOR,
+											LeagueAverages.RANK,
 											Pitches.BULPEN,
 											team);
 	}
@@ -53,7 +55,9 @@ public class StatisticFactory {
 		return new DefaultPitchingStatistic(LeagueAverages.STRIKE_OUT_RATE, 
 											LeagueAverages.WALK_RATE, 
 											LeagueAverages.WEIGHTED_OBA, 
-											LeagueAverages.WEIGHTED_OBA, 
+											LeagueAverages.WEIGHTED_OBA,
+											LeagueAverages.FACTOR,
+											LeagueAverages.RANK,
 											Pitches.RIGHT,
 											team);
 	}
@@ -93,6 +97,8 @@ public class StatisticFactory {
 												walkRate.doubleValue(), 
 												weightedOBA.doubleValue(), 
 												expectedInnings.doubleValue(), 
+												LeagueAverages.FACTOR,
+												LeagueAverages.RANK,
 												Pitches.valueOf(pitches),
 												team);
 		}
@@ -134,7 +140,9 @@ public class StatisticFactory {
 			return new DefaultPitchingStatistic(soRate.doubleValue(), 
 												walkRate.doubleValue(),
 												weightedOBA.doubleValue(), 
-												expectedInnings.doubleValue(), 
+												expectedInnings.doubleValue(),
+												LeagueAverages.FACTOR,
+												LeagueAverages.RANK,
 												Pitches.BULPEN,
 												mlbTeam);
 		}
