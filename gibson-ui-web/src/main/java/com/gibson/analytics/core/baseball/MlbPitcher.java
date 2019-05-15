@@ -72,6 +72,16 @@ public class MlbPitcher implements PitchingStatistics {
 		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_WALK_RATE, LeagueAverages.WALK_RATE);
 	}
 	
+	@Override
+	public BigDecimal getFactor() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_FACTOR, LeagueAverages.FACTOR);
+	}
+	
+	@Override
+	public BigDecimal getRank() {
+		return getStatisticOrDefault(CsvPitcherConstants.COLUMN_RANK, LeagueAverages.RANK);
+	}
+	
 	/**
 	 * 
 	 * @param statisticName

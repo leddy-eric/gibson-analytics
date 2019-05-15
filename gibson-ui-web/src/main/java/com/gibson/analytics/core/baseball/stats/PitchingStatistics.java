@@ -35,6 +35,20 @@ public interface PitchingStatistics {
 	public BigDecimal getProjectedInnings(); 
 	
 	/**
+	 * Return the pitcher factor
+	 * 
+	 * @return
+	 */
+	public BigDecimal getFactor(); 
+	
+	/**
+	 * The pitcher rank.
+	 * 
+	 * @return
+	 */
+	public BigDecimal getRank();
+	
+	/**
 	 * Return the pitchers throwing.
 	 * 
 	 * @return

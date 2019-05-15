@@ -13,10 +13,17 @@ public class LinearLineProvider extends AbstractMlbGameStatsProvider {
 
 	@Override
 	public GameStatistic createStatistics(Game game, MlbLineup home, MlbLineup away) {
-		// TODO Auto-generated method stub
-		return new GameStatistic("Linear Line", "N/A");
+		return new GameStatistic("Linear Line", calculateLine(home.getPitcher().getRank(), away.getPitcher().getRank()));
 	}
 
+	/**
+	 * Home Rank and Away Rank are just the pitcher rank from the game. (pitcher.csv)
+	 * 
+	 * @param homeRank
+	 * @param awayRank
+	 * 
+	 * @return
+	 */
 	private String calculateLine(BigDecimal homeRank, BigDecimal awayRank) {
 		BigDecimal point535 = BigDecimal.valueOf(.535);
 		BigDecimal line = homeRank.subtract(awayRank).add(point535);
@@ -34,7 +41,7 @@ public class LinearLineProvider extends AbstractMlbGameStatsProvider {
 			line = line.multiply(oneHundred).divide(one.subtract(line), 5, RoundingMode.HALF_UP).multiply(negativeOne);			
 		}
 		
-		return line.setScale(2,RoundingMode.HALF_DOWN).toString();
+		return line.setScale(2, RoundingMode.HALF_DOWN).toString();
 	}
 
 	//	@Override

@@ -17,7 +17,6 @@ import com.gibson.analytics.core.baseball.stats.DefaultBattingStatistic;
 import com.gibson.analytics.core.baseball.stats.DefaultPitchingStatistic;
 import com.gibson.analytics.core.baseball.stats.Pitches;
 import com.gibson.analytics.core.baseball.stats.PitchingStatistics;
-import com.gibson.analytics.core.baseball.stats.StatisticFactory;
 import com.gibson.analytics.enums.MlbTeamLookup;
 
 public class MatchupAlgorithmTest {
@@ -25,7 +24,7 @@ public class MatchupAlgorithmTest {
 	@Test
 	public void testRunsVsStarter() {
 		// Starter
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(.127947857, .048834833, 0.385062383, 6, Pitches.RIGHT, MlbTeamLookup.ROYALS);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(.127947857, .048834833, 0.385062383, 6, 1, .5, Pitches.RIGHT, MlbTeamLookup.ROYALS);
 		
 		// Lineup
 		BattingStatistics[] batters = 
@@ -52,7 +51,7 @@ public class MatchupAlgorithmTest {
 	@Test
 	public void testRunsVsBullpen() {
 		// Starter
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.287929572, 0.074157929, 0.361064668, 3, Pitches.BULPEN, MlbTeamLookup.ROYALS);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.287929572, 0.074157929, 0.361064668, 3, 1, .5, Pitches.BULPEN, MlbTeamLookup.ROYALS);
 		
 		// Lineup
 		BattingStatistics[] batters = 
@@ -95,7 +94,7 @@ public class MatchupAlgorithmTest {
 	@Test
 	public void testSpecificWeightedOBA() {
 		BattingStatistics batter =  new DefaultBattingStatistic(0.188, 0.038, 0.328, Bats.RIGHT);
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4, Pitches.RIGHT, MlbTeamLookup.ROYALS);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4,	1, .5, Pitches.RIGHT, MlbTeamLookup.ROYALS);
 		
 		double weightedOBA = MatchupAlgorithm.weightedOBA(batter, pitcher);
 		

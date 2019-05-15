@@ -39,6 +39,16 @@ public abstract class AbstractMlbGameStatsProvider implements GameStatisticsProv
 	public ParkFactor getHomeParkFactor(Game game) {
 		return parkService.findParkFactor(game.getHome().getName());
 	}
+	
+	/**
+	 * Lookup method for park factors, should go in team statistics eventually. TODO - Move this into the MLBLineup object.
+	 * 
+	 * @param game
+	 * @return
+	 */
+	public ParkFactor getHomeLinearParkFactor(Game game) {
+		return parkService.findLinearParkFactor(game.getHome().getName());
+	}
 
 	/**
 	 * 
