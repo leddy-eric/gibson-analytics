@@ -33,7 +33,7 @@
 											<tr *ngFor="let awayActive of detail.away.lineup">
 												<td>{{awayActive.battingOrder}}</td>
 												<td>{{awayActive.player.name}}</td>
-												<td>{{awayActive.player.position}}</td>
+												<td>{{awayActive.position}}</td>
 												<td>{{getStrikeOutValue(awayActive) | number}}</td>
 												<td>{{getWalkValue(awayActive) | number}}</td>
 												<td>{{getObpValue(awayActive) | number}}</td>
@@ -63,7 +63,7 @@
 											<tr *ngFor="let homeActive of detail.home.lineup">
 												<td>{{homeActive.battingOrder}}</td>
 												<td>{{homeActive.player.name}}</td>
-												<td>{{homeActive.player.position}}</td>
+												<td>{{homeActive.position}}</td>
 												<td>{{getStrikeOutValue(homeActive) | number}}</td>
 												<td>{{getWalkValue(homeActive) | number}}</td>
 												<td>{{getObpValue(homeActive) | number}}</td>

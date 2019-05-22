@@ -88,7 +88,36 @@ public class MatchupAlgorithmTest {
 		assertEquals("SWITCH vs Bullpen", 1.0, MatchupAlgorithm.matchupAdjustment(Bats.SWITCH, Pitches.BULPEN).doubleValue(), 0);
 		assertEquals("SWITCH vs L", 1.0, MatchupAlgorithm.matchupAdjustment(Bats.SWITCH, Pitches.LEFT).doubleValue(), 0);
 		assertEquals("SWITCH vs R", 1.0, MatchupAlgorithm.matchupAdjustment(Bats.SWITCH, Pitches.RIGHT).doubleValue(), 0);
-
+	}
+	
+	@Test
+	public void testMatchupWalkAdjustments() {
+		assertEquals("R vs Bullpen", 1.00, MatchupAlgorithm.matchupWalkAdjustment(Bats.RIGHT, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("R vs L", 1.03, MatchupAlgorithm.matchupWalkAdjustment(Bats.RIGHT, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("R vs R", 0.873, MatchupAlgorithm.matchupWalkAdjustment(Bats.RIGHT, Pitches.RIGHT).doubleValue(), 0);
+		
+		assertEquals("L vs Bullpen", 1.00, MatchupAlgorithm.matchupWalkAdjustment(Bats.LEFT, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("L vs L", 0.892, MatchupAlgorithm.matchupWalkAdjustment(Bats.LEFT, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("L vs R", 1.13, MatchupAlgorithm.matchupWalkAdjustment(Bats.LEFT, Pitches.RIGHT).doubleValue(), 0);
+		
+		assertEquals("SWITCH vs Bullpen", 1.0, MatchupAlgorithm.matchupWalkAdjustment(Bats.SWITCH, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("SWITCH vs L", 1.0, MatchupAlgorithm.matchupWalkAdjustment(Bats.SWITCH, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("SWITCH vs R", 1.0, MatchupAlgorithm.matchupWalkAdjustment(Bats.SWITCH, Pitches.RIGHT).doubleValue(), 0);
+	}
+	
+	@Test
+	public void testMatchupStrikeOutAdjustments() {
+		assertEquals("R vs Bullpen", 1.00, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.RIGHT, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("R vs L", .99, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.RIGHT, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("R vs R", 1.028, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.RIGHT, Pitches.RIGHT).doubleValue(), 0);
+		
+		assertEquals("L vs Bullpen", 1.00, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.LEFT, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("L vs L", 1.035, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.LEFT, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("L vs R", .971, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.LEFT, Pitches.RIGHT).doubleValue(), 0);
+		
+		assertEquals("SWITCH vs Bullpen", 1.0, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.SWITCH, Pitches.BULPEN).doubleValue(), 0);
+		assertEquals("SWITCH vs L", 1.0, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.SWITCH, Pitches.LEFT).doubleValue(), 0);
+		assertEquals("SWITCH vs R", 1.0, MatchupAlgorithm.matchupStrikeOutAdjustment(Bats.SWITCH, Pitches.RIGHT).doubleValue(), 0);
 	}
 	
 	@Test

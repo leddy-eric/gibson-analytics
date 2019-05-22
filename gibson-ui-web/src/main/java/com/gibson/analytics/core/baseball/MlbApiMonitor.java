@@ -172,6 +172,7 @@ public class MlbApiMonitor {
 		for (MlbGameActive lastActive : lineup) {
 			MlbGameActive active = new MlbGameActive();
 			active.setBattingOrder(lastActive.getBattingOrder());
+			active.setPosition(lastActive.getPosition());
 			active.setPlayer(lastActive.getPlayer());
 			defaultLineup.add(active);
 		}
