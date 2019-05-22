@@ -11,6 +11,8 @@ public class MatchupPlayer {
 	private Long id;
 	@XmlAttribute
 	private String position;
+	@XmlAttribute(name="game_position")
+	private String gamePosition;
 	@XmlAttribute(name="bat_order")
 	private Integer batting;
 	
@@ -55,6 +57,20 @@ public class MatchupPlayer {
 	 */
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	/**
+	 * @return the gamePosition
+	 */
+	public String getGamePosition() {
+		return gamePosition;
+	}
+
+	/**
+	 * @param gamePosition the gamePosition to set
+	 */
+	public void setGamePosition(String gamePosition) {
+		this.gamePosition = gamePosition;
 	}
 
 }

@@ -149,6 +149,7 @@ public class MlbGameService {
 				if(p.isPresent()) {
 					MlbGameActive active = new MlbGameActive();
 					active.setBattingOrder(player.getBatting());
+					active.setPosition(player.getGamePosition());
 					active.setPlayer(p.get());
 					activeLineup.add(active);
 					

@@ -2,7 +2,6 @@ package com.gibson.analytics.core.baseball.data;
 
 import java.io.Serializable;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -27,6 +26,9 @@ public class MlbGameActive implements Serializable {
 	
 	@Column
 	private int battingOrder;
+	
+	@Column
+	private String position;
 	
 	@OneToOne(fetch = FetchType.EAGER, orphanRemoval = false)
 	@JoinColumn(name = "playerId")	
@@ -72,6 +74,20 @@ public class MlbGameActive implements Serializable {
 	 */
 	public void setBattingOrder(int battingOrder) {
 		this.battingOrder = battingOrder;
+	}
+
+	/**
+	 * @return the position
+	 */
+	public String getPosition() {
+		return position;
+	}
+
+	/**
+	 * @param position the position to set
+	 */
+	public void setPosition(String position) {
+		this.position = position;
 	}
 	
 	

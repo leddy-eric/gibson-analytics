@@ -125,19 +125,24 @@ public final class MatchupAlgorithm {
 	 */
 	public static double weightedOBA(BattingStatistics batter, PitchingStatistics pitcher) {
 		BigDecimal matchupAdjustment = matchupAdjustment(batter, pitcher);
+		BigDecimal walkAdjustment = matchupWalkAdjustment(batter, pitcher);
+		BigDecimal strikeOutAdjustment = matchupStrikeOutAdjustment(batter, pitcher);
+		
 		
 		// Calculate EffSORatevsStart		
 		BigDecimal effectiveStrikeoutRate = 
 				batter.getStrikeOutRate()
 				.multiply(pitcher.getStrikeoutRate())
-				.divide(BigDecimal.valueOf(LeagueAverages.STRIKE_OUT_RATE), DEFAULT_CONTEXT);
+				.divide(BigDecimal.valueOf(LeagueAverages.STRIKE_OUT_RATE), DEFAULT_CONTEXT)
+				.multiply(strikeOutAdjustment);
 	
 		
 		// Calculate EffWalkRatevsStarter		
 		BigDecimal effectiveWalkRate = 
 				batter.getWalkRate()
 				.multiply(pitcher.getWalkRate())
-				.divide(BigDecimal.valueOf(LeagueAverages.WALK_RATE), DEFAULT_CONTEXT);
+				.divide(BigDecimal.valueOf(LeagueAverages.WALK_RATE), DEFAULT_CONTEXT)
+				.multiply(walkAdjustment);
 
 		
 		// Calculate EffwOBAvsStarter
@@ -195,6 +200,91 @@ public final class MatchupAlgorithm {
 				}
 				
 				return BigDecimal.valueOf(.993);
+			}			
+		}
+
+		// Switch hitters and Bullpen
+		return BigDecimal.ONE;
+	}
+	
+	/**
+	 * Gets the head to head adjustment.
+	 * 
+	 * @param b
+	 * @param p
+	 * @return
+	 */
+	protected static BigDecimal matchupWalkAdjustment(BattingStatistics b, PitchingStatistics p) {
+		return matchupAdjustment(b.bats(), p.pitches());
+	}
+
+	/**
+	 * 
+	 * @param bats
+	 * @param pitches
+	 * @return
+	 */
+	protected static BigDecimal matchupWalkAdjustment(Bats bats, Pitches pitches) {
+		Assert.notNull(bats, "Bats must be a non null value");
+		Assert.notNull(pitches, "Pitches must be a non null value");
+		if(Pitches.BULPEN != pitches) {
+			if(Bats.LEFT == bats) {
+				if(Pitches.LEFT == pitches) {
+					return BigDecimal.valueOf(.892);
+				}
+				
+				return BigDecimal.valueOf(1.13);
+				
+			} else if(Bats.RIGHT == bats) {
+				
+				if(Pitches.LEFT == pitches) {
+					return BigDecimal.valueOf(1.03);
+				}
+				
+				return BigDecimal.valueOf(.873);
+			}			
+		}
+
+		// Switch hitters and Bullpen
+		return BigDecimal.ONE;
+	}
+	
+	
+	/**
+	 * Gets the head to head adjustment.
+	 * 
+	 * @param b
+	 * @param p
+	 * @return
+	 */
+	protected static BigDecimal matchupStrikeOutAdjustment(BattingStatistics b, PitchingStatistics p) {
+		return matchupAdjustment(b.bats(), p.pitches());
+	}
+
+	/**
+	 * 
+	 * @param bats
+	 * @param pitches
+	 * @return
+	 */
+	protected static BigDecimal matchupStrikeOutAdjustment(Bats bats, Pitches pitches) {
+		Assert.notNull(bats, "Bats must be a non null value");
+		Assert.notNull(pitches, "Pitches must be a non null value");
+		if(Pitches.BULPEN != pitches) {
+			if(Bats.LEFT == bats) {
+				if(Pitches.LEFT == pitches) {
+					return BigDecimal.valueOf(1.035);
+				}
+				
+				return BigDecimal.valueOf(.971);
+				
+			} else if(Bats.RIGHT == bats) {
+				
+				if(Pitches.LEFT == pitches) {
+					return BigDecimal.valueOf(.99);
+				}
+				
+				return BigDecimal.valueOf(1.028);
 			}			
 		}
 

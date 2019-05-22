@@ -3,8 +3,6 @@ package com.gibson.analytics.core.baseball;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,9 +24,6 @@ public class MlbLineup {
 	
 	// Batting Order
 	private List<MlbPlayer> lineup;
-	
-	// Constants
-	private static final String POSITION_PITCHER = "P";
 	
 	/**
 	 * @return the team
@@ -93,29 +88,9 @@ public class MlbLineup {
 		}
 		
 		return lineup.stream()
-				.filter(p -> !POSITION_PITCHER.equals(p.getPlayer().getPosition()))
+				.filter(p -> !p.isPitcher())
 				.map(p -> p.getStatisticOrDefault(name, defaultValue))
 				.reduce(BigDecimal::add).get();
-	}
-
-
-
-	/**
-	 * Uses the lineup to determine the pitcher and passes a MLBPitcher wrapper in return, 
-	 * if no pitcher exist in the lineup the default will be returned.
-	 *  
-	 * @return
-	 */
-	public MlbPitcher getPitcher() {
-		Optional<MlbPlayer> player = lineup.stream()
-										.filter(p -> p.isPitcher())
-		        						.collect(Collectors.reducing((a, b) -> null));
-		
-		if(player.isPresent() && startingPitcher == null) {
-			return new MlbPitcher(player.get().getPlayer());
-		}
-		
-		return startingPitcher;
 	}
 	
 	public double runsAgainst(MlbLineup opponent, ParkFactor parkFactor) {
