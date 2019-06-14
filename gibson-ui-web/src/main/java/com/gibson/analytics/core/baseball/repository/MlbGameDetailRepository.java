@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import com.gibson.analytics.core.baseball.data.MlbGameDetail;
+import com.gibson.analytics.core.baseball.data.MlbGameStatus;
 import com.gibson.analytics.enums.MlbTeamLookup;
 
 /**
@@ -31,19 +34,12 @@ public interface MlbGameDetailRepository extends JpaRepository<MlbGameDetail, Lo
 	 */
 	public Optional<MlbGameDetail> findByApiId(String apiId);
 	
-	/**
-	 * Find the last game for the given home team.
-	 * 
-	 * @param team
-	 * @return
-	 */
-	public Optional<MlbGameDetail> findTopByHomeTeamOrderByCreated(MlbTeamLookup team);
 	
 	/**
-	 * Find the last game for the given home team.
 	 * 
 	 * @param team
 	 * @return
 	 */
-	public Optional<MlbGameDetail> findTopByAwayTeamOrderByCreated(MlbTeamLookup team);
+	@Query("SELECT g FROM MlbGameDetail g where g.home.team = ?1 or g.away.team = ?1 and g.status in ('FINAL','RECOMMEND') ORDER BY created DESC")
+	public List<MlbGameDetail> findLatestByTeam(MlbTeamLookup team);
 }
