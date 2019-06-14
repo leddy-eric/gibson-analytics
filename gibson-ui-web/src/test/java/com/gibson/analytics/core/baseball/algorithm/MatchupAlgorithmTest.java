@@ -122,12 +122,12 @@ public class MatchupAlgorithmTest {
 	
 	@Test
 	public void testSpecificWeightedOBA() {
-		BattingStatistics batter =  new DefaultBattingStatistic(0.188, 0.038, 0.328, Bats.RIGHT);
-		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.247, 0.072, 0.379, 5.4,	1, .5, Pitches.RIGHT, MlbTeamLookup.ROYALS);
+		BattingStatistics batter =  new DefaultBattingStatistic(0.1274453318, 0.0654248576, 0.3702707871, Bats.RIGHT);
+		PitchingStatistics pitcher = new DefaultPitchingStatistic(0.2034030334, 0.0924570965, 0.39547229938, 5.4,	1, .5, Pitches.LEFT, MlbTeamLookup.ROYALS);
 		
 		double weightedOBA = MatchupAlgorithm.weightedOBA(batter, pitcher);
 		
-		assertEquals("Specific OBA failed", 0.351978644, weightedOBA, .00001);
+		assertEquals("Specific OBA failed", 0.36729, weightedOBA, .0001);
 	}
 	
 	@Test

@@ -61,7 +61,7 @@ public final class MatchupAlgorithm {
 		if(parkFactor.getTeam().isAmericanLeague()) {
 			leagueFactor = 54.5;
 		} else {
-			leagueFactor = 50.5;
+			leagueFactor = 50.8;
 		}
 		
 		
