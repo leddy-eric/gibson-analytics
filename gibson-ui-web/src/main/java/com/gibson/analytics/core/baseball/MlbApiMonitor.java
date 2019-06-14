@@ -188,21 +188,18 @@ public class MlbApiMonitor {
 	 * @return
 	 */
 	private List<MlbGameActive> findLatestLineup(MlbTeamLookup team) {
-		Optional<MlbGameDetail> awayGame = repository.findTopByAwayTeamOrderByCreated(team);
-		Optional<MlbGameDetail> homeGame = repository.findTopByHomeTeamOrderByCreated(team);
+		Optional<MlbGameDetail> latest = repository.findLatestByTeam(team).stream().findFirst();
 		
-		// Both present chose the latest
-		if(awayGame.isPresent() && homeGame.isPresent()) {
-			if(awayGame.get().getCreated() > homeGame.get().getCreated()) {
-				return awayGame.get().getAway().getLineup();
-			}
+		if(latest.isPresent()) {			
+			MlbGameRoster away = latest.get().getAway();
+			MlbGameRoster home = latest.get().getHome();
 			
-			return homeGame.get().getHome().getLineup();
-		} else if(awayGame.isPresent()) {
-			return awayGame.get().getAway().getLineup();
-		} else if(homeGame.isPresent()) {
-			return homeGame.get().getHome().getLineup();
-		} 
+			if(team.equals(away.getTeam())) {
+				return away.getLineup();
+			} else {
+				return home.getLineup();
+			}
+		}
 		
 		return new ArrayList<>();
 	}

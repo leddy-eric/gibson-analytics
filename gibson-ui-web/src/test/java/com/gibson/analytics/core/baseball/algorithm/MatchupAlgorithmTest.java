@@ -180,7 +180,7 @@ public class MatchupAlgorithmTest {
 		
 		double totalRuns = (3.213022707 + 0.950547578);
 		
-		assertEquals("Ajusted total runs", 4.057683987, MatchupAlgorithm.adjustedTotalRuns(totalRuns , teamBaseRunningAdjustment, opponentFieldingAdjustment), .00001);
+		assertEquals("Ajusted total runs", 4.057683987, MatchupAlgorithm.adjustedTotalRuns(totalRuns, teamBaseRunningAdjustment, opponentFieldingAdjustment), .00001);
 	}
 	
 

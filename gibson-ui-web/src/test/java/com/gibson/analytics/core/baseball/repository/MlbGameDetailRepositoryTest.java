@@ -31,7 +31,7 @@ public class MlbGameDetailRepositoryTest {
 	
 	@Test
 	public void testFindByTeam() {
-		Optional<MlbGameDetail> homeGame = this.repository.findTopByAwayTeamOrderByCreated(MlbTeamLookup.ROCKIES);
+		Optional<MlbGameDetail> homeGame = this.repository.findLatestByTeam(MlbTeamLookup.ROCKIES).stream().findFirst();
 		
 		assertTrue(homeGame.isPresent());
 	}
